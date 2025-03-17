@@ -83,12 +83,14 @@ enemyImages[14].src = 'img/sefa.png';
 enemyImages[15].src = 'img/ekrem.jpg';
 enemyImages[16].src = 'img/okan.jpg';
 
+
 let enemies = [];
 let score = 0;
 let spawnInterval = 2000;
 let enemySpeed = 2;
 let enemySpawnInterval;
 let lastSpawnTime = 0;
+let gameOver = false; // Oyun bitti durumunu takip etmek için
 
 // Kontroller
 let keys = {
@@ -137,6 +139,7 @@ function createEnemy() {
 
 // Spawn sıklığını güncelle
 function updateSpawnRate() {
+    if (gameOver) return; // Oyun bittiyse spawn durdur
     spawnInterval = Math.max(500, 2000 - Math.floor(score / 50) * 200);
     if (Date.now() - lastSpawnTime > spawnInterval && enemies.length < 10) {
         const enemiesToSpawn = Math.floor(Math.random() * 3) + 1;
@@ -164,6 +167,8 @@ function updateShake() {
 
 // Oyun döngüsü
 function gameLoop() {
+    if (gameOver) return; // Oyun bittiyse döngüyü durdur
+
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -229,6 +234,8 @@ function gameLoop() {
                 scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
             } else {
                 gameOverSound.play();
+                gameOver = true;
+                resetGameState(); // Oyun bittiğinde her şeyi sıfırla
                 showGameOverModal();
             }
         }
@@ -242,8 +249,8 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// Oyunu sıfırla
-function resetGame() {
+// Oyunu sıfırla (Modal açıldığında her şeyi sıfırla)
+function resetGameState() {
     enemies = [];
     bullets = [];
     score = 0;
@@ -257,7 +264,24 @@ function resetGame() {
     player.shakeDuration = 0;
     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
     gameOverModal.style.display = 'none';
-    updateSpawnRate();
+}
+
+// Oyunu yeniden başlat (Modal kapandığında çalışır)
+function startGame() {
+    gameOver = false;
+    enemies = [];
+    bullets = [];
+    score = 0;
+    spawnInterval = 2000;
+    enemySpeed = 2;
+    player.x = canvas.width / 2 - 25;
+    player.originalX = canvas.width / 2 - 25;
+    player.lives = 3;
+    player.speed = 7;
+    player.shake = false;
+    player.shakeDuration = 0;
+    scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
+    gameLoop();
 }
 
 // Oyun bitti modalını göster
@@ -268,6 +292,7 @@ function showGameOverModal() {
 
 // Klavye kontrolleri (Boşluk ve Enter'ı modal kapatma için devre dışı bırak)
 document.addEventListener('keydown', (e) => {
+    if (gameOver) return; // Oyun bittiyse klavye kontrollerini devre dışı bırak
     if (e.key === 'ArrowLeft') keys.left = true;
     if (e.key === 'ArrowRight') keys.right = true;
     if (e.key === ' ' && !keys.shoot) {
@@ -277,16 +302,17 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.addEventListener('keyup', (e) => {
+    if (gameOver) return; // Oyun bittiyse klavye kontrollerini devre dışı bırak
     if (e.key === 'ArrowLeft') keys.left = false;
     if (e.key === 'ArrowRight') keys.right = false;
     if (e.key === ' ') keys.shoot = false;
     // Klavye ile modal kapatma engellendi
 });
 
-// Fare ile modal kapatma
+// Fare ile modal kapatma ve oyunu yeniden başlatma
 closeModalButton.addEventListener('click', () => {
     gameOverModal.style.display = 'none';
-    resetGame();
+    startGame(); // Modal kapandığında oyunu yeniden başlat
 });
 
 // Resimlerin yüklenmesini bekle
