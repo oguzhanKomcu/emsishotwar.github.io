@@ -44,10 +44,23 @@ let bullets = [];
 
 // Düşman resimleri
 const enemyImages = [
-    new Image(), new Image(), new Image(), new Image(), new Image(),
-    new Image(), new Image(), new Image(), new Image(), new Image(),
-    new Image(), new Image(), new Image(), new Image(), new Image(),
-    new Image()
+    new Image(), // oguz.jpg
+    new Image(), // alimert.jpg
+    new Image(), // hekaka.jpg
+    new Image(), // kaan.jpg
+    new Image(), // yazgan.jpg
+    new Image(), // osman.jpg
+    new Image(), // ozan.jpg
+    new Image(), // ziyaburak.jpg
+    new Image(), // mertcan.jpg
+    new Image(), // adnan.jpg
+    new Image(), // kerimcan.jpg
+    new Image(), // cagri.jpg
+    new Image(), // alpertunga.jpg
+    new Image(), // mami.jpg
+    new Image(), // sefa.png
+    new Image(),
+    new Image()  // ekrem.png
 ];
 enemyImages[0].src = 'img/oguz.jpg';
 enemyImages[1].src = 'img/alimert.jpg';
@@ -65,13 +78,11 @@ enemyImages[12].src = 'img/alpertunga.jpg';
 enemyImages[13].src = 'img/mami.jpg';
 enemyImages[14].src = 'img/sefa.png';
 enemyImages[15].src = 'img/ekrem.jpg';
+enemyImages[16].src = 'img/okan.jpg';
 
 let enemies = [];
 let score = 0;
-let spawnInterval = 4000;
-const minSpawnInterval = 1000;
-const maxEnemies = 5;
-const enemiesPerSpawn = 1;
+let spawnInterval = 2000;
 let enemySpeed = 2;
 let enemySpawnInterval;
 let lastSpawnTime = 0;
@@ -101,11 +112,19 @@ function shootBullet() {
     }
 }
 
-// Düşman oluştur
+// Düşman oluştur (Aynı düşmandan bir tane olacak şekilde güncellendi)
 function createEnemy() {
     const size = 65;
     const x = Math.random() * (canvas.width - size);
-    const image = enemyImages[Math.floor(Math.random() * enemyImages.length)];
+    // Mevcut düşmanların resimlerini kontrol et
+    const existingImages = enemies.map(enemy => enemy.image.src);
+    // Henüz kullanılmamış bir resim seç
+    let availableImages = enemyImages.filter(img => !existingImages.includes(img.src));
+    if (availableImages.length === 0) {
+        // Tüm düşmanlar ekrandaysa, mevcut düşmanlardan birini rastgele seç
+        availableImages = enemyImages;
+    }
+    const image = availableImages[Math.floor(Math.random() * availableImages.length)];
     enemies.push({
         x: x,
         y: -size,
@@ -118,10 +137,11 @@ function createEnemy() {
 
 // Spawn sıklığını güncelle
 function updateSpawnRate() {
-    spawnInterval = Math.max(minSpawnInterval, 3000 - Math.floor(score / 50) * 200);
-    if (Date.now() - lastSpawnTime > spawnInterval && enemies.length < maxEnemies) {
-        for (let i = 0; i < enemiesPerSpawn; i++) {
-            if (enemies.length < maxEnemies) {
+    spawnInterval = Math.max(500, 2000 - Math.floor(score / 50) * 200);
+    if (Date.now() - lastSpawnTime > spawnInterval && enemies.length < 10) {
+        const enemiesToSpawn = Math.floor(Math.random() * 3) + 1; // 1-3 düşman
+        for (let i = 0; i < enemiesToSpawn; i++) {
+            if (enemies.length < 10) {
                 createEnemy();
             }
         }
@@ -228,7 +248,7 @@ function resetGame() {
     enemies = [];
     bullets = [];
     score = 0;
-    spawnInterval = 3000;
+    spawnInterval = 2000;
     enemySpeed = 2;
     player.x = canvas.width / 2 - 25;
     player.originalX = canvas.width / 2 - 25;
@@ -258,7 +278,7 @@ document.addEventListener('keyup', (e) => {
 
 // Resimlerin yüklenmesini bekle
 let imagesLoaded = 0;
-const totalImages = enemyImages.length + 2; // playerImage ve bulletImage dahil
+const totalImages = enemyImages.length + 2;
 enemyImages.forEach((img, index) => {
     img.onload = () => {
         imagesLoaded++;
