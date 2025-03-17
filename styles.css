@@ -22,9 +22,26 @@ body {
     position: relative;
 }
 
+#gameTitle {
+    position: absolute;
+    top: -140px; /* Canvasın tam üstüne yerleştir, başlık için biraz alan bırak */
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 28px;
+    font-weight: bold;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    white-space: nowrap;
+    z-index: 10;
+    text-shadow: 2px 2px 4px #000;
+}
+
 #score {
     position: absolute;
-    top: -50px;
+    top: -100px; /* gameTitle'ın hemen altına, canvasın üst kenarına yakın */
     left: 50%;
     transform: translateX(-50%);
     color: #fff;
@@ -40,7 +57,7 @@ body {
 }
 
 .modal {
-    display: none; /* Varsayılan olarak gizli */
+    display: none;
     position: fixed;
     z-index: 1000;
     left: 0;
