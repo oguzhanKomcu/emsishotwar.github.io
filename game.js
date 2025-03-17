@@ -1,6 +1,9 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
+const gameOverModal = document.getElementById('gameOverModal');
+const finalScoreDisplay = document.getElementById('finalScore');
+const closeModalButton = document.getElementById('closeModal');
 
 // Oyunun başında skor ve canı açıkça ayarla
 if (scoreDisplay) {
@@ -112,16 +115,13 @@ function shootBullet() {
     }
 }
 
-// Düşman oluştur (Aynı düşmandan bir tane olacak şekilde güncellendi)
+// Düşman oluştur (Aynı düşmandan bir tane olacak şekilde)
 function createEnemy() {
     const size = 65;
     const x = Math.random() * (canvas.width - size);
-    // Mevcut düşmanların resimlerini kontrol et
     const existingImages = enemies.map(enemy => enemy.image.src);
-    // Henüz kullanılmamış bir resim seç
     let availableImages = enemyImages.filter(img => !existingImages.includes(img.src));
     if (availableImages.length === 0) {
-        // Tüm düşmanlar ekrandaysa, mevcut düşmanlardan birini rastgele seç
         availableImages = enemyImages;
     }
     const image = availableImages[Math.floor(Math.random() * availableImages.length)];
@@ -139,7 +139,7 @@ function createEnemy() {
 function updateSpawnRate() {
     spawnInterval = Math.max(500, 2000 - Math.floor(score / 50) * 200);
     if (Date.now() - lastSpawnTime > spawnInterval && enemies.length < 10) {
-        const enemiesToSpawn = Math.floor(Math.random() * 3) + 1; // 1-3 düşman
+        const enemiesToSpawn = Math.floor(Math.random() * 3) + 1;
         for (let i = 0; i < enemiesToSpawn; i++) {
             if (enemies.length < 10) {
                 createEnemy();
@@ -229,8 +229,7 @@ function gameLoop() {
                 scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
             } else {
                 gameOverSound.play();
-                alert(`Oyun Bitti! Skorun: ${score}`);
-                resetGame();
+                showGameOverModal();
             }
         }
 
@@ -257,10 +256,17 @@ function resetGame() {
     player.shake = false;
     player.shakeDuration = 0;
     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
+    gameOverModal.style.display = 'none';
     updateSpawnRate();
 }
 
-// Klavye kontrolleri
+// Oyun bitti modalını göster
+function showGameOverModal() {
+    finalScoreDisplay.textContent = score;
+    gameOverModal.style.display = 'block';
+}
+
+// Klavye kontrolleri (Boşluk ve Enter'ı modal kapatma için devre dışı bırak)
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') keys.left = true;
     if (e.key === 'ArrowRight') keys.right = true;
@@ -274,6 +280,13 @@ document.addEventListener('keyup', (e) => {
     if (e.key === 'ArrowLeft') keys.left = false;
     if (e.key === 'ArrowRight') keys.right = false;
     if (e.key === ' ') keys.shoot = false;
+    // Klavye ile modal kapatma engellendi
+});
+
+// Fare ile modal kapatma
+closeModalButton.addEventListener('click', () => {
+    gameOverModal.style.display = 'none';
+    resetGame();
 });
 
 // Resimlerin yüklenmesini bekle
