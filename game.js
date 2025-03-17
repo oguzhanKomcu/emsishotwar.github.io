@@ -44,49 +44,35 @@ let bullets = [];
 
 // Düşman resimleri
 const enemyImages = [
-    new Image(), // oguz.JPG
-    new Image(), // alimert.JPG
-    new Image(), // hekaka.JPG
-    new Image(), // kaan.JPG
-    new Image(), // yazgan.JPG
-    new Image(), // osman.JPG
-    new Image(), // ozan.JPG
-    new Image(), // ziyaburak.JPG
-    new Image(), // mertcan.JPG
-    new Image(), // adnan.JPG
-    new Image(), // kerimcan.JPG
-    new Image(), // cagri.JPG
-    new Image(), // alpertunga.JPG
-    new Image(), // mami.JPG
-    new Image(), // sefa.png
-    new Image(),
-    new Image() // ekrem.png
+    new Image(), new Image(), new Image(), new Image(), new Image(),
+    new Image(), new Image(), new Image(), new Image(), new Image(),
+    new Image(), new Image(), new Image(), new Image(), new Image(),
+    new Image()
 ];
-enemyImages[0].src = 'img/oguz.JPG';
-enemyImages[1].src = 'img/alimert.JPG';
-enemyImages[2].src = 'img/hekaka.JPG'; 
-enemyImages[3].src = 'img/kaan.JPG'; 
-enemyImages[4].src = 'img/yazgan.JPG'; 
-enemyImages[5].src = 'img/osman.JPG'; 
-enemyImages[6].src = 'img/ozan.JPG'; 
-enemyImages[7].src = 'img/ziyaburak.JPG'; 
-enemyImages[8].src = 'img/mertcan.JPG'; 
-enemyImages[9].src = 'img/adnan.JPG'; 
-enemyImages[10].src = 'img/kerimcan.JPG'; 
-enemyImages[11].src = 'img/cagri.png'; 
-enemyImages[12].src = 'img/alpertunga.JPG'; 
-enemyImages[13].src = 'img/mami.JPG'; 
+enemyImages[0].src = 'img/oguz.jpg';
+enemyImages[1].src = 'img/alimert.jpg';
+enemyImages[2].src = 'img/hekaka.jpg';
+enemyImages[3].src = 'img/kaan.jpg';
+enemyImages[4].src = 'img/yazgan.jpg';
+enemyImages[5].src = 'img/osman.jpg';
+enemyImages[6].src = 'img/ozan.jpg';
+enemyImages[7].src = 'img/ziyaburak.jpg';
+enemyImages[8].src = 'img/mertcan.jpg';
+enemyImages[9].src = 'img/adnan.jpg';
+enemyImages[10].src = 'img/kerimcan.jpg';
+enemyImages[11].src = 'img/cagri.png';
+enemyImages[12].src = 'img/alpertunga.jpg';
+enemyImages[13].src = 'img/mami.jpg';
 enemyImages[14].src = 'img/sefa.png';
-enemyImages[15].src = 'img/ekrem.JPG';
-enemyImages[16].src = 'img/okan.JPG';
+enemyImages[15].src = 'img/ekrem.jpg';
 
 let enemies = [];
 let score = 0;
-let spawnInterval = 2000; // Başlangıç spawn süresi (3 saniye)
-const minSpawnInterval = 1000; // Minimum spawn süresi (1 saniye)
-const maxEnemies = 5; // Aynı anda ekranda olabilecek maksimum düşman sayısı
-const enemiesPerSpawn = 2; // Her spawn işleminde oluşturulacak düşman sayısı
-let enemySpeed = 2; // Düşman hızı
+let spawnInterval = 3000;
+const minSpawnInterval = 1000;
+const maxEnemies = 5;
+const enemiesPerSpawn = 1;
+let enemySpeed = 2;
 let enemySpawnInterval;
 let lastSpawnTime = 0;
 
@@ -184,7 +170,7 @@ function gameLoop() {
                 bullet.x + bullet.width > enemy.x &&
                 bullet.x < enemy.x + enemy.width
             ) {
-                if (enemy.image.src.includes('alpertunga.JPG')) {
+                if (enemy.image.src.includes('alpertunga.jpg')) {
                     bullets.splice(bulletIndex, 1);
                 } else {
                     enemies.splice(enemyIndex, 1);
@@ -272,10 +258,11 @@ document.addEventListener('keyup', (e) => {
 
 // Resimlerin yüklenmesini bekle
 let imagesLoaded = 0;
-const totalImages = enemyImages.length + 2;
-enemyImages.forEach((img) => {
+const totalImages = enemyImages.length + 2; // playerImage ve bulletImage dahil
+enemyImages.forEach((img, index) => {
     img.onload = () => {
         imagesLoaded++;
+        console.log(`Resim yüklendi: ${img.src}`);
         if (imagesLoaded === totalImages) {
             setTimeout(() => {
                 enemySpawnInterval = setInterval(() => updateSpawnRate(), spawnInterval);
@@ -284,12 +271,13 @@ enemyImages.forEach((img) => {
         }
     };
     img.onerror = () => {
-        console.error('Resim yüklenemedi: ' + img.src);
+        console.error(`Resim yüklenemedi: ${img.src}. Dosya yolunu kontrol edin!`);
     };
 });
 
 bulletImage.onload = () => {
     imagesLoaded++;
+    console.log(`Resim yüklendi: ${bulletImage.src}`);
     if (imagesLoaded === totalImages) {
         setTimeout(() => {
             enemySpawnInterval = setInterval(() => updateSpawnRate(), spawnInterval);
@@ -298,11 +286,12 @@ bulletImage.onload = () => {
     }
 };
 bulletImage.onerror = () => {
-    console.error('Mermi resmi yüklenemedi: ' + bulletImage.src);
+    console.error(`Mermi resmi yüklenemedi: ${bulletImage.src}. Dosya yolunu kontrol edin!`);
 };
 
 playerImage.onload = () => {
     imagesLoaded++;
+    console.log(`Resim yüklendi: ${playerImage.src}`);
     if (imagesLoaded === totalImages) {
         setTimeout(() => {
             enemySpawnInterval = setInterval(() => updateSpawnRate(), spawnInterval);
@@ -311,7 +300,7 @@ playerImage.onload = () => {
     }
 };
 playerImage.onerror = () => {
-    console.error('Oyuncu resmi yüklenemedi: ' + playerImage.src);
+    console.error(`Oyuncu resmi yüklenemedi: ${playerImage.src}. Dosya yolunu kontrol edin!`);
 };
 
 // Seslerin yüklenmesini kontrol et
