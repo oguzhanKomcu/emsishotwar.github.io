@@ -68,7 +68,7 @@ enemyImages[15].src = 'img/ekrem.jpg';
 
 let enemies = [];
 let score = 0;
-let spawnInterval = 3000;
+let spawnInterval = 4000;
 const minSpawnInterval = 1000;
 const maxEnemies = 5;
 const enemiesPerSpawn = 1;
