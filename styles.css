@@ -4,95 +4,35 @@ body {
     overflow: hidden;
     background: url('img/woodstock.jpg') no-repeat center center fixed;
     background-size: cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 #gameContainer {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 #gameCanvas {
-    border: 1px solid #fff;
-    position: relative;
+    max-width: 100%;
+    height: auto;
 }
 
 #gameTitle {
-    position: absolute;
-    top: -140px; /* Canvasın tam üstüne yerleştir, başlık için biraz alan bırak */
-    left: 50%;
-    transform: translateX(-50%);
-    color: #fff;
     font-family: Arial, sans-serif;
-    font-size: 28px;
     font-weight: bold;
-    padding: 10px 20px;
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 10px;
-    white-space: nowrap;
-    z-index: 10;
     text-shadow: 2px 2px 4px #000;
 }
 
 #score {
-    position: absolute;
-    top: -100px; /* gameTitle'ın hemen altına, canvasın üst kenarına yakın */
-    left: 50%;
-    transform: translateX(-50%);
-    color: #fff;
     font-family: Arial, sans-serif;
-    font-size: 36px;
     font-weight: bold;
-    padding: 10px 20px;
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 10px;
-    white-space: nowrap;
-    z-index: 10;
     text-shadow: 2px 2px 4px #000;
 }
 
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-}
-
+/* Bootstrap modal için özelleştirme */
 .modal-content {
-    background-color: #333;
-    color: #fff;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    text-align: center;
-    font-size: 24px;
-    font-family: Arial, sans-serif;
     border-radius: 10px;
-    position: relative;
 }
 
-#closeModal {
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 18px;
-    background-color: #4CAF50;
-    color: white;
+.modal-header, .modal-footer {
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#closeModal:hover {
-    background-color: #45a049;
 }
