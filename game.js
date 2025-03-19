@@ -1,7 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
-const gameOverModal = document.getElementById('gameOverModal');
+const gameOverModal = new bootstrap.Modal(document.getElementById('gameOverModal'), { backdrop: 'static', keyboard: false });
 const finalScoreDisplay = document.getElementById('finalScore');
 const closeModalButton = document.getElementById('closeModal');
 
@@ -25,18 +25,55 @@ const gameOverSound = new Audio('img/arcadegameover.wav');
 // Mermi atış ses efekti
 const shootSound = new Audio('img/bardaksesi.wav');
 
-// Oyuncu
+// Oyuncu (Önce tanımlıyoruz)
 const player = {
-    x: canvas.width / 2 - 25,
-    y: canvas.height - 60,
+    x: 0, // Başlangıçta sıfır, resizeCanvas ile güncellenecek
+    y: 0,
     width: 50,
     height: 50,
     speed: 7,
     lives: 3,
     shake: false,
     shakeDuration: 0,
-    originalX: canvas.width / 2 - 25
+    originalX: 0
 };
+
+// Canvas boyutunu ekrana göre ayarlama
+function resizeCanvas() {
+    const maxWidth = 800;
+    const maxHeight = 600;
+    const aspectRatio = maxWidth / maxHeight;
+
+    let width = window.innerWidth * 0.9;
+    let height = window.innerHeight * 0.9;
+
+    if (width > maxWidth) width = maxWidth;
+    if (height > maxHeight) height = maxHeight;
+
+    if (width / height > aspectRatio) {
+        width = height * aspectRatio;
+    } else {
+        height = width / aspectRatio;
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+
+    // Oyuncu pozisyonunu yeni boyutlara göre güncelle
+    player.x = canvas.width / 2 - player.width / 2;
+    player.y = canvas.height - 60;
+    player.originalX = player.x;
+
+    // Canvas'ı siyah arka planla doldur
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+// Pencere boyutu değiştiğinde canvas'ı yeniden boyutlandır
+window.addEventListener('resize', resizeCanvas);
+
+// İlk yüklemede canvas'ı boyutlandır
+resizeCanvas();
 
 // Mermi resmi
 const bulletImage = new Image();
@@ -58,12 +95,14 @@ const enemyImages = [
     new Image(), // mertcan.jpg
     new Image(), // adnan.jpg
     new Image(), // kerimcan.jpg
-    new Image(), // cagri.jpg
+    new Image(), // cagri.png
     new Image(), // alpertunga.jpg
     new Image(), // mami.jpg
     new Image(), // sefa.png
-    new Image(),
-    new Image()  // ekrem.png
+    new Image(), // ekrem.jpg
+    new Image(), // okan.jpg
+    new Image(), // sinan.jpg
+    new Image()  // mesih.jpg
 ];
 enemyImages[0].src = 'img/oguz.jpg';
 enemyImages[1].src = 'img/alimert.jpg';
@@ -82,7 +121,8 @@ enemyImages[13].src = 'img/mami.jpg';
 enemyImages[14].src = 'img/sefa.png';
 enemyImages[15].src = 'img/ekrem.jpg';
 enemyImages[16].src = 'img/okan.jpg';
-
+enemyImages[17].src = 'img/sinan.jpg';
+enemyImages[18].src = 'img/mesih.jpg';
 
 let enemies = [];
 let score = 0;
@@ -90,7 +130,8 @@ let spawnInterval = 2000;
 let enemySpeed = 2;
 let enemySpawnInterval;
 let lastSpawnTime = 0;
-let gameOver = false; // Oyun bitti durumunu takip etmek için
+let gameOver = false;
+let gameStarted = false;
 
 // Kontroller
 let keys = {
@@ -139,7 +180,7 @@ function createEnemy() {
 
 // Spawn sıklığını güncelle
 function updateSpawnRate() {
-    if (gameOver) return; // Oyun bittiyse spawn durdur
+    if (gameOver || !gameStarted) return;
     spawnInterval = Math.max(500, 2000 - Math.floor(score / 50) * 200);
     if (Date.now() - lastSpawnTime > spawnInterval && enemies.length < 10) {
         const enemiesToSpawn = Math.floor(Math.random() * 3) + 1;
@@ -167,7 +208,7 @@ function updateShake() {
 
 // Oyun döngüsü
 function gameLoop() {
-    if (gameOver) return; // Oyun bittiyse döngüyü durdur
+    if (gameOver || !gameStarted) return;
 
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -235,8 +276,8 @@ function gameLoop() {
             } else {
                 gameOverSound.play();
                 gameOver = true;
-                resetGameState(); // Oyun bittiğinde her şeyi sıfırla
                 showGameOverModal();
+                resetGameState();
             }
         }
 
@@ -256,43 +297,47 @@ function resetGameState() {
     score = 0;
     spawnInterval = 2000;
     enemySpeed = 2;
-    player.x = canvas.width / 2 - 25;
-    player.originalX = canvas.width / 2 - 25;
     player.lives = 3;
     player.speed = 7;
     player.shake = false;
     player.shakeDuration = 0;
     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
-    gameOverModal.style.display = 'none';
+    resizeCanvas(); // Canvas'ı sıfırlarken boyutları güncelle ve arka planı siyah yap
 }
 
-// Oyunu yeniden başlat (Modal kapandığında çalışır)
+// Oyunu başlat (Resimler yüklendiğinde veya modal kapandığında çalışır)
 function startGame() {
     gameOver = false;
+    gameStarted = true;
     enemies = [];
     bullets = [];
     score = 0;
     spawnInterval = 2000;
     enemySpeed = 2;
-    player.x = canvas.width / 2 - 25;
-    player.originalX = canvas.width / 2 - 25;
     player.lives = 3;
     player.speed = 7;
     player.shake = false;
     player.shakeDuration = 0;
+    keys.left = false;
+    keys.right = false;
+    keys.shoot = false;
     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
+    enemySpawnInterval = setInterval(() => updateSpawnRate(), spawnInterval);
     gameLoop();
 }
 
-// Oyun bitti modalını göster
+// Oyun bitti modalını göster (Bootstrap Modal ile)
 function showGameOverModal() {
+    // Modal açılmadan önce canvas'ı siyah arka planla doldur
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     finalScoreDisplay.textContent = score;
-    gameOverModal.style.display = 'block';
+    gameOverModal.show();
 }
 
 // Klavye kontrolleri (Boşluk ve Enter'ı modal kapatma için devre dışı bırak)
 document.addEventListener('keydown', (e) => {
-    if (gameOver) return; // Oyun bittiyse klavye kontrollerini devre dışı bırak
+    if (gameOver || !gameStarted) return;
     if (e.key === 'ArrowLeft') keys.left = true;
     if (e.key === 'ArrowRight') keys.right = true;
     if (e.key === ' ' && !keys.shoot) {
@@ -302,17 +347,16 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.addEventListener('keyup', (e) => {
-    if (gameOver) return; // Oyun bittiyse klavye kontrollerini devre dışı bırak
+    if (gameOver || !gameStarted) return;
     if (e.key === 'ArrowLeft') keys.left = false;
     if (e.key === 'ArrowRight') keys.right = false;
     if (e.key === ' ') keys.shoot = false;
-    // Klavye ile modal kapatma engellendi
 });
 
 // Fare ile modal kapatma ve oyunu yeniden başlatma
 closeModalButton.addEventListener('click', () => {
-    gameOverModal.style.display = 'none';
-    startGame(); // Modal kapandığında oyunu yeniden başlat
+    gameOverModal.hide();
+    startGame();
 });
 
 // Resimlerin yüklenmesini bekle
@@ -323,10 +367,7 @@ enemyImages.forEach((img, index) => {
         imagesLoaded++;
         console.log(`Resim yüklendi: ${img.src}`);
         if (imagesLoaded === totalImages) {
-            setTimeout(() => {
-                enemySpawnInterval = setInterval(() => updateSpawnRate(), spawnInterval);
-                gameLoop();
-            }, 2000);
+            startGame();
         }
     };
     img.onerror = () => {
@@ -338,10 +379,7 @@ bulletImage.onload = () => {
     imagesLoaded++;
     console.log(`Resim yüklendi: ${bulletImage.src}`);
     if (imagesLoaded === totalImages) {
-        setTimeout(() => {
-            enemySpawnInterval = setInterval(() => updateSpawnRate(), spawnInterval);
-            gameLoop();
-        }, 2000);
+        startGame();
     }
 };
 bulletImage.onerror = () => {
@@ -352,10 +390,7 @@ playerImage.onload = () => {
     imagesLoaded++;
     console.log(`Resim yüklendi: ${playerImage.src}`);
     if (imagesLoaded === totalImages) {
-        setTimeout(() => {
-            enemySpawnInterval = setInterval(() => updateSpawnRate(), spawnInterval);
-            gameLoop();
-        }, 2000);
+        startGame();
     }
 };
 playerImage.onerror = () => {
