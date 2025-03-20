@@ -25,13 +25,19 @@ const gameOverSound = new Audio('img/arcadegameover.wav');
 // Mermi atış ses efekti
 const shootSound = new Audio('img/bardaksesi.wav');
 
+// Skor 1000 olduğunda çalacak şarkı
+const mcSound = new Audio('img/mc.mp3');
+
+// Şarkının yalnızca bir kez çalınmasını sağlamak için kontrol değişkeni
+let isMcPlayed = false;
+
 // Oyuncu (Önce tanımlıyoruz)
 const player = {
     x: 0, // Başlangıçta sıfır, resizeCanvas ile güncellenecek
     y: 0,
     width: 50,
     height: 50,
-    speed: 7,
+    speed: 5,
     lives: 3,
     shake: false,
     shakeDuration: 0,
@@ -127,7 +133,7 @@ enemyImages[18].src = 'img/mesih.jpg';
 let enemies = [];
 let score = 0;
 let spawnInterval = 2000;
-let enemySpeed = 2;
+let enemySpeed = 0.5;
 let enemySpawnInterval;
 let lastSpawnTime = 0;
 let gameOver = false;
@@ -173,7 +179,7 @@ function createEnemy() {
         y: -size,
         width: size,
         height: size,
-        speed: enemySpeed + Math.random() * 1,
+        speed: enemySpeed + Math.random() * 0.3,
         image: image
     });
 }
@@ -245,8 +251,13 @@ function gameLoop() {
                     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
                     updateSpawnRate();
                     if (score % 50 === 0) {
-                        player.speed += 1;
-                        enemySpeed += 0.5;
+                        player.speed += 0.5;
+                        enemySpeed += 0.2;
+                    }
+                    // Skor 1000 olduğunda mc.mp3 şarkısını çal
+                    if (score >= 1000 && !isMcPlayed) {
+                        mcSound.play().catch(error => console.error('MC şarkısı çalma hatası:', error));
+                        isMcPlayed = true;
                     }
                 }
             }
@@ -296,16 +307,17 @@ function resetGameState() {
     bullets = [];
     score = 0;
     spawnInterval = 2000;
-    enemySpeed = 2;
+    enemySpeed = 0.5;
     player.lives = 3;
     player.speed = 7;
     player.shake = false;
     player.shakeDuration = 0;
+    isMcPlayed = false;
     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
-    resizeCanvas(); // Canvas'ı sıfırlarken boyutları güncelle ve arka planı siyah yap
+    resizeCanvas();
 }
 
-// Oyunu başlat (Resimler yüklendiğinde veya modal kapandığında çalışır)
+// Oyunu başlat (Resimler ve sesler yüklendiğinde çalışır)
 function startGame() {
     gameOver = false;
     gameStarted = true;
@@ -313,11 +325,12 @@ function startGame() {
     bullets = [];
     score = 0;
     spawnInterval = 2000;
-    enemySpeed = 2;
+    enemySpeed = 0.5;
     player.lives = 3;
     player.speed = 7;
     player.shake = false;
     player.shakeDuration = 0;
+    isMcPlayed = false;
     keys.left = false;
     keys.right = false;
     keys.shoot = false;
@@ -328,9 +341,10 @@ function startGame() {
 
 // Oyun bitti modalını göster (Bootstrap Modal ile)
 function showGameOverModal() {
-    // Modal açılmadan önce canvas'ı siyah arka planla doldur
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    mcSound.pause();
+    mcSound.currentTime = 0;
     finalScoreDisplay.textContent = score;
     gameOverModal.show();
 }
@@ -359,16 +373,25 @@ closeModalButton.addEventListener('click', () => {
     startGame();
 });
 
-// Resimlerin yüklenmesini bekle
+// Resim ve ses yüklenmesini kontrol et
 let imagesLoaded = 0;
-const totalImages = enemyImages.length + 2;
+let soundsLoaded = 0;
+const totalImages = enemyImages.length + 2; // enemyImages + bulletImage + playerImage
+const totalSounds = 4; // lifeLostSound, gameOverSound, shootSound, mcSound
+
+// Tüm kaynaklar yüklendiğinde oyunu başlat
+function checkAllLoaded() {
+    if (imagesLoaded === totalImages && soundsLoaded === totalSounds) {
+        startGame();
+    }
+}
+
+// Resimlerin yüklenmesini kontrol et
 enemyImages.forEach((img, index) => {
     img.onload = () => {
         imagesLoaded++;
         console.log(`Resim yüklendi: ${img.src}`);
-        if (imagesLoaded === totalImages) {
-            startGame();
-        }
+        checkAllLoaded();
     };
     img.onerror = () => {
         console.error(`Resim yüklenemedi: ${img.src}. Dosya yolunu kontrol edin!`);
@@ -378,9 +401,7 @@ enemyImages.forEach((img, index) => {
 bulletImage.onload = () => {
     imagesLoaded++;
     console.log(`Resim yüklendi: ${bulletImage.src}`);
-    if (imagesLoaded === totalImages) {
-        startGame();
-    }
+    checkAllLoaded();
 };
 bulletImage.onerror = () => {
     console.error(`Mermi resmi yüklenemedi: ${bulletImage.src}. Dosya yolunu kontrol edin!`);
@@ -389,9 +410,7 @@ bulletImage.onerror = () => {
 playerImage.onload = () => {
     imagesLoaded++;
     console.log(`Resim yüklendi: ${playerImage.src}`);
-    if (imagesLoaded === totalImages) {
-        startGame();
-    }
+    checkAllLoaded();
 };
 playerImage.onerror = () => {
     console.error(`Oyuncu resmi yüklenemedi: ${playerImage.src}. Dosya yolunu kontrol edin!`);
@@ -399,22 +418,37 @@ playerImage.onerror = () => {
 
 // Seslerin yüklenmesini kontrol et
 lifeLostSound.onloadeddata = () => {
+    soundsLoaded++;
     console.log('Can kaybı sesi yüklendi.');
+    checkAllLoaded();
 };
 lifeLostSound.onerror = () => {
     console.error('Can kaybı sesi yüklenemedi: ' + lifeLostSound.src);
 };
 
 gameOverSound.onloadeddata = () => {
+    soundsLoaded++;
     console.log('Oyun bitti sesi yüklendi.');
+    checkAllLoaded();
 };
 gameOverSound.onerror = () => {
     console.error('Oyun bitti sesi yüklenemedi: ' + gameOverSound.src);
 };
 
 shootSound.onloadeddata = () => {
+    soundsLoaded++;
     console.log('Mermi atış sesi yüklendi.');
+    checkAllLoaded();
 };
 shootSound.onerror = () => {
     console.error('Mermi atış sesi yüklenemedi: ' + shootSound.src);
+};
+
+mcSound.onloadeddata = () => {
+    soundsLoaded++;
+    console.log('MC şarkısı yüklendi.');
+    checkAllLoaded();
+};
+mcSound.onerror = () => {
+    console.error('MC şarkısı yüklenemedi: ' + mcSound.src);
 };
