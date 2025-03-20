@@ -28,8 +28,15 @@ const shootSound = new Audio('img/bardaksesi.wav');
 // Skor 1000 olduğunda çalacak şarkı
 const mcSound = new Audio('img/mc.mp3');
 
+// Yeni: Bira alındığında çalacak ses efekti
+const beerSound = new Audio('img/biraSes.mp3');
+
 // Şarkının yalnızca bir kez çalınmasını sağlamak için kontrol değişkeni
 let isMcPlayed = false;
+
+// Bira (can) resmi
+const beerImage = new Image();
+beerImage.src = 'img/bira.png';
 
 // Oyuncu (Önce tanımlıyoruz)
 const player = {
@@ -139,6 +146,11 @@ let lastSpawnTime = 0;
 let gameOver = false;
 let gameStarted = false;
 
+// Bira (can) objeleri dizisi
+let beers = [];
+let lastBeerSpawnTime = 0;
+const beerSpawnInterval = 15000; // 15 saniyede bir bira çıkacak (1000 skordan sonra)
+
 // Kontroller
 let keys = {
     left: false,
@@ -184,7 +196,21 @@ function createEnemy() {
     });
 }
 
-// Spawn sıklığını güncelle
+// Bira (can) objesi oluştur
+function createBeer() {
+    const size = 30; // Bira objesinin boyutu
+    const x = Math.random() * (canvas.width - size);
+    beers.push({
+        x: x,
+        y: -size,
+        width: size,
+        height: size,
+        speed: enemySpeed, // Bira, düşmanlarla aynı hızda hareket edecek
+        image: beerImage
+    });
+}
+
+// Spawn sıklığını güncelle (Düşmanlar için)
 function updateSpawnRate() {
     if (gameOver || !gameStarted) return;
     spawnInterval = Math.max(500, 2000 - Math.floor(score / 50) * 200);
@@ -196,6 +222,16 @@ function updateSpawnRate() {
             }
         }
         lastSpawnTime = Date.now();
+    }
+}
+
+// Bira spawn sıklığını güncelle
+function updateBeerSpawn() {
+    if (gameOver || !gameStarted) return;
+    // 1000 skordan sonra bira çıkmaya başlasın
+    if (score >= 300 && Date.now() - lastBeerSpawnTime > beerSpawnInterval && beers.length < 1) {
+        createBeer();
+        lastBeerSpawnTime = Date.now();
     }
 }
 
@@ -297,7 +333,35 @@ function gameLoop() {
         }
     });
 
+    // Bira objelerini güncelle ve çiz
+    beers.forEach((beer, index) => {
+        beer.y += beer.speed; // Bira, düşmanlarla aynı hızda aşağı iniyor
+        ctx.drawImage(beer.image, beer.x, beer.y, beer.width, beer.height);
+
+        // Oyuncu bira ile çarpışırsa can kazan
+        if (
+            beer.y + beer.height > player.y &&
+            beer.x < player.x + player.width &&
+            beer.x + beer.width > player.x
+        ) {
+            // Maksimum 5 can sınırı
+            if (player.lives < 5) {
+                player.lives += 1;
+                scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
+            }
+            beers.splice(index, 1); // Bira alındı, listeden kaldır
+            // Yeni: Bira alındığında biraSes.mp3 çal
+            beerSound.play().catch(error => console.error('Bira sesi çalma hatası:', error));
+        }
+
+        // Bira ekranın altına ulaşırsa kaybolsun
+        if (beer.y > canvas.height) {
+            beers.splice(index, 1);
+        }
+    });
+
     updateSpawnRate();
+    updateBeerSpawn();
     requestAnimationFrame(gameLoop);
 }
 
@@ -305,6 +369,7 @@ function gameLoop() {
 function resetGameState() {
     enemies = [];
     bullets = [];
+    beers = [];
     score = 0;
     spawnInterval = 2000;
     enemySpeed = 0.5;
@@ -323,6 +388,7 @@ function startGame() {
     gameStarted = true;
     enemies = [];
     bullets = [];
+    beers = [];
     score = 0;
     spawnInterval = 2000;
     enemySpeed = 0.5;
@@ -376,8 +442,8 @@ closeModalButton.addEventListener('click', () => {
 // Resim ve ses yüklenmesini kontrol et
 let imagesLoaded = 0;
 let soundsLoaded = 0;
-const totalImages = enemyImages.length + 2; // enemyImages + bulletImage + playerImage
-const totalSounds = 4; // lifeLostSound, gameOverSound, shootSound, mcSound
+const totalImages = enemyImages.length + 3; // enemyImages + bulletImage + playerImage + beerImage
+const totalSounds = 5; // Yeni: lifeLostSound, gameOverSound, shootSound, mcSound, beerSound
 
 // Tüm kaynaklar yüklendiğinde oyunu başlat
 function checkAllLoaded() {
@@ -416,6 +482,16 @@ playerImage.onerror = () => {
     console.error(`Oyuncu resmi yüklenemedi: ${playerImage.src}. Dosya yolunu kontrol edin!`);
 };
 
+// Bira resminin yüklenmesini kontrol et
+beerImage.onload = () => {
+    imagesLoaded++;
+    console.log(`Resim yüklendi: ${beerImage.src}`);
+    checkAllLoaded();
+};
+beerImage.onerror = () => {
+    console.error(`Bira resmi yüklenemedi: ${beerImage.src}. Dosya yolunu kontrol edin!`);
+};
+
 // Seslerin yüklenmesini kontrol et
 lifeLostSound.onloadeddata = () => {
     soundsLoaded++;
@@ -451,4 +527,14 @@ mcSound.onloadeddata = () => {
 };
 mcSound.onerror = () => {
     console.error('MC şarkısı yüklenemedi: ' + mcSound.src);
+};
+
+// Yeni: Bira sesinin yüklenmesini kontrol et
+beerSound.onloadeddata = () => {
+    soundsLoaded++;
+    console.log('Bira sesi yüklendi.');
+    checkAllLoaded();
+};
+beerSound.onerror = () => {
+    console.error('Bira sesi yüklenemedi: ' + beerSound.src);
 };
