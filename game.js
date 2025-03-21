@@ -140,7 +140,7 @@ enemyImages[18].src = 'img/mesih.jpg';
 let enemies = [];
 let score = 0;
 let spawnInterval = 2000;
-let enemySpeed = 0.5;
+let enemySpeed = 0.2;
 let enemySpawnInterval;
 let lastSpawnTime = 0;
 let gameOver = false;
@@ -372,7 +372,7 @@ function resetGameState() {
     beers = [];
     score = 0;
     spawnInterval = 2000;
-    enemySpeed = 0.5;
+    enemySpeed = 0.2;
     player.lives = 3;
     player.speed = 7;
     player.shake = false;
@@ -391,7 +391,7 @@ function startGame() {
     beers = [];
     score = 0;
     spawnInterval = 2000;
-    enemySpeed = 0.5;
+    enemySpeed = 0.2;
     player.lives = 3;
     player.speed = 7;
     player.shake = false;
