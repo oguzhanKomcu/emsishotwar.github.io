@@ -28,6 +28,25 @@ body {
     text-shadow: 2px 2px 4px #000;
 }
 
+/* Kartlar ve modal için stil */
+.card {
+    border: 1px solid #fff;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card-img-top {
+    height: 150px;
+    object-fit: cover;
+}
+
+.select-bg-btn {
+    width: 100%;
+}
+
 /* Bootstrap modal için özelleştirme */
 .modal-content {
     border-radius: 10px;
