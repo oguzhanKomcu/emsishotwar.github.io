@@ -431,7 +431,10 @@ function showGameOverModal() {
         message = 'Bir shot daha atarsan uzaya roket gönderirsin, dikkat et! :D :D';
     } else if (score >= 2000) {
         message = 'OHAAAA HELALL OLSUNN BE SANAA !!!';
+    } else if (score >= 2400 && score < 2500) {
+        message = 'Benden sana bir tane bira  :D';
     }
+
 
     // Modal içeriğini güncelle
     document.getElementById('finalScoreDisplay').textContent = `Skorun: ${score}`;
