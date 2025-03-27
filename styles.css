@@ -2,7 +2,7 @@ body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background: url('img/woodstock.jpg') no-repeat center center fixed;
+    background: no-repeat center center fixed;
     background-size: cover;
     min-height: 100vh;
 }
@@ -28,7 +28,7 @@ body {
     text-shadow: 2px 2px 4px #000;
 }
 
-/* Kartlar ve modal için stil */
+
 .card {
     border: 1px solid #fff;
     transition: transform 0.2s;
@@ -47,7 +47,7 @@ body {
     width: 100%;
 }
 
-/* Bootstrap modal için özelleştirme */
+
 .modal-content {
     border-radius: 10px;
 }
@@ -55,3 +55,4 @@ body {
 .modal-header, .modal-footer {
     border: none;
 }
+
