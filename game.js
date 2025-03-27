@@ -3,7 +3,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
 const backgroundSelectModal = new bootstrap.Modal(document.getElementById('backgroundSelectModal'), { backdrop: 'static', keyboard: false });
-
+const gameOverModal = new bootstrap.Modal(document.getElementById('gameOverModal'), { backdrop: 'static', keyboard: false });
 
 // Yükleme ekranı için bir div ve video elementi oluştur
 const loadingScreen = document.createElement('div');
@@ -23,13 +23,13 @@ loadingScreen.style.zIndex = '1000';
 const loadingVideo = document.createElement('video');
 loadingVideo.src = 'img/yukleniyorMami.mp4';
 loadingVideo.autoplay = true; // Otomatik oynat
-loadingVideo.loop = true; // Döngüde oynat
 loadingVideo.muted = true; // Ses kapalı (isteğe bağlı, eğer ses istemiyorsanız)
-loadingVideo.style.width = '400px'; // 800x800 boyut
-loadingVideo.style.height = '400px';
+loadingVideo.style.width = '300px'; // 800x800 boyut
+loadingVideo.style.height = '300px';
 loadingVideo.style.objectFit = 'cover'; // Videoyu 800x800 içine sığdır (oranı koruyarak)
 loadingScreen.appendChild(loadingVideo);
 document.body.appendChild(loadingScreen);
+
 // Canvas'ı başlangıçta gizle
 canvas.style.display = 'none';
 
@@ -306,7 +306,7 @@ function gameLoop() {
                 lifeLostSound.play();
                 scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
             } else {
-                gameOverSound.play();
+                gameOverSound.play().catch(error => console.error('Oyun bitti sesi çalma hatası:', error));
                 gameOver = true;
                 showGameOverModal();
                 resetGameState();
@@ -383,8 +383,7 @@ function startGame() {
 }
 
 function showGameOverModal() {
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // MC şarkısını durdur
     mcSound.pause();
     mcSound.currentTime = 0;
 
@@ -434,41 +433,30 @@ function showGameOverModal() {
         message = 'OHAAAA HELALL OLSUNN BE SANAA !!!';
     }
 
-    // Canvas üzerine mesajı çiz
-    ctx.fillStyle = '#fff';
-    ctx.font = '24px Arial';
-    ctx.textAlign = 'center';
+    // Modal içeriğini güncelle
+    document.getElementById('finalScoreDisplay').textContent = `Skorun: ${score}`;
+    document.getElementById('gameOverMessage').textContent = message;
 
-    const scoreText = `Skorun: ${score}`;
-    ctx.fillText(scoreText, canvas.width / 2, canvas.height / 2 - 20);
+    // Diğer modalları kapat (eğer açıksa)
+    backgroundSelectModal.hide();
 
-    const maxWidth = canvas.width - 40;
-    const lineHeight = 30;
-    const words = message.split(' ');
-    let line = '';
-    let y = canvas.height / 2 + 10;
+    // Game Over modalını göster
+    gameOverModal.show();
 
-    for (let i = 0; i < words.length; i++) {
-        const testLine = line + words[i] + ' ';
-        const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxWidth && i > 0) {
-            ctx.fillText(line, canvas.width / 2, y);
-            line = words[i] + ' ';
-            y += lineHeight;
-        } else {
-            line = testLine;
-        }
-    }
-    ctx.fillText(line, canvas.width / 2, y);
+    // Hata ayıklama için log
+    console.log('Game Over modalı gösterildi. Skor:', score, 'Mesaj:', message);
 
-    ctx.fillStyle = '#ff0';
-    ctx.font = '20px Arial';
-    ctx.fillText('Tekrar Oynamak İçin Enter\'a Bas', canvas.width / 2, canvas.height - 50);
+    // "Tekrar Oyna" butonuna tıklama eventi
+    document.getElementById('closeModalButton').onclick = () => {
+        gameOverModal.hide();
+        backgroundSelectModal.show();
+    };
 }
 
 // Enter tuşu ile arka plan seçimini tetikleme
 document.addEventListener('keydown', (e) => {
     if (gameOver && e.key === 'Enter') {
+        gameOverModal.hide();
         backgroundSelectModal.show();
     }
     if (gameOver || !gameStarted) return;
@@ -492,6 +480,8 @@ function changeBackground(bgUrl) {
     document.body.style.background = `url('${bgUrl}') no-repeat center center fixed`;
     document.body.style.backgroundSize = 'cover';
     canvas.style.display = 'block'; // Canvas'ı görünür yap
+    document.getElementById('gameTitle').style.display = 'block';
+    document.getElementById('score').style.display = 'block';
     startGame();
 }
 
@@ -509,19 +499,39 @@ let imagesLoaded = 0;
 let soundsLoaded = 0;
 const totalImages = enemyImages.length + 3; // enemyImages + bulletImage + playerImage + beerImage
 const totalSounds = 5;
+let assetsLoaded = false;
 
-function checkAllLoaded() {
+// Tüm varlıkların (resim ve ses) yüklenip yüklenmediğini kontrol et
+function checkAssetsLoaded() {
     if (imagesLoaded === totalImages && soundsLoaded === totalSounds) {
+        assetsLoaded = true;
+        console.log('Tüm varlıklar yüklendi.');
+    }
+}
+
+// Video bittiğinde veya varlıklar yüklendiğinde kontrol et
+function checkAllLoaded() {
+    if (assetsLoaded) {
+        loadingVideo.pause(); // Videoyu durdur
         loadingScreen.style.display = 'none'; // Yükleme ekranını gizle
+        document.getElementById('gameTitle').style.display = 'none';
+        document.getElementById('score').style.display = 'none';
         backgroundSelectModal.show(); // Arka plan seçim modalını aç
     }
 }
 
+// Video bittiğinde kontrol et
+loadingVideo.addEventListener('ended', () => {
+    console.log('Video bitti.');
+    checkAllLoaded();
+});
+
+// Varlık yüklemelerini kontrol et
 enemyImages.forEach((img, index) => {
     img.onload = () => {
         imagesLoaded++;
         console.log(`Resim yüklendi: ${img.src}`);
-        checkAllLoaded();
+        checkAssetsLoaded();
     };
     img.onerror = () => console.error(`Resim yüklenemedi: ${img.src}`);
 });
@@ -529,55 +539,55 @@ enemyImages.forEach((img, index) => {
 bulletImage.onload = () => {
     imagesLoaded++;
     console.log(`Resim yüklendi: ${bulletImage.src}`);
-    checkAllLoaded();
+    checkAssetsLoaded();
 };
 bulletImage.onerror = () => console.error(`Mermi resmi yüklenemedi: ${bulletImage.src}`);
 
 playerImage.onload = () => {
     imagesLoaded++;
     console.log(`Resim yüklendi: ${playerImage.src}`);
-    checkAllLoaded();
+    checkAssetsLoaded();
 };
 playerImage.onerror = () => console.error(`Oyuncu resmi yüklenemedi: ${playerImage.src}`);
 
 beerImage.onload = () => {
     imagesLoaded++;
     console.log(`Resim yüklendi: ${beerImage.src}`);
-    checkAllLoaded();
+    checkAssetsLoaded();
 };
 beerImage.onerror = () => console.error(`Bira resmi yüklenemedi: ${beerImage.src}`);
 
 lifeLostSound.onloadeddata = () => {
     soundsLoaded++;
     console.log('Can kaybı sesi yüklendi.');
-    checkAllLoaded();
+    checkAssetsLoaded();
 };
 lifeLostSound.onerror = () => console.error('Can kaybı sesi yüklenemedi: ' + lifeLostSound.src);
 
 gameOverSound.onloadeddata = () => {
     soundsLoaded++;
     console.log('Oyun bitti sesi yüklendi.');
-    checkAllLoaded();
+    checkAssetsLoaded();
 };
 gameOverSound.onerror = () => console.error('Oyun bitti sesi yüklenemedi: ' + gameOverSound.src);
 
 shootSound.onloadeddata = () => {
     soundsLoaded++;
     console.log('Mermi atış sesi yüklendi.');
-    checkAllLoaded();
+    checkAssetsLoaded();
 };
 shootSound.onerror = () => console.error('Mermi atış sesi yüklenemedi: ' + shootSound.src);
 
 mcSound.onloadeddata = () => {
     soundsLoaded++;
     console.log('MC şarkısı yüklendi.');
-    checkAllLoaded();
+    checkAssetsLoaded();
 };
 mcSound.onerror = () => console.error('MC şarkısı yüklenemedi: ' + mcSound.src);
 
 beerSound.onloadeddata = () => {
     soundsLoaded++;
     console.log('Bira sesi yüklendi.');
-    checkAllLoaded();
+    checkAssetsLoaded();
 };
 beerSound.onerror = () => console.error('Bira sesi yüklenemedi: ' + beerSound.src);
