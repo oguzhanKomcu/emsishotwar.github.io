@@ -55,9 +55,9 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <div class="card bg-dark text-white">
-                                <img src="img/moda2.jpg" class="card-img-top" alt="moda2">
+                                <img src="img/düzcekampi.jpg" class="card-img-top" alt="moda2">
                                 <div class="card-body">
-                                    <button class="btn btn-primary select-bg-btn" data-bg="img/moda2.jpg">Moda 2</button>
+                                    <button class="btn btn-primary select-bg-btn" data-bg="img/düzcekampi.jpg">Düzce Kampı</button>
                                 </div>
                             </div>
                         </div>
@@ -83,26 +83,26 @@
         </div>
     </div>
 
-    <!-- Oyun Bitti Modal -->
-    <div class="modal fade" id="gameOverModal" tabindex="-1" aria-labelledby="gameOverModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="gameOverModalLabel">Oyun Bitti!</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Skorun: <span id="finalScore">0</span>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" id="closeModal" class="btn btn-success" data-bs-dismiss="modal">Tamam</button>
-                </div>
+<!-- Game Over Modal -->
+<div class="modal fade" id="gameOverModal" tabindex="-1" aria-labelledby="gameOverModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gameOverModalLabel">Oyun Bitti!</h5>
+            </div>
+            <div class="modal-body">
+                <p id="finalScoreDisplay">Skorun: 0</p>
+                <p id="gameOverMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="closeModalButton">Tekrar Oyna</button>
             </div>
         </div>
     </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="game.js"></script>
-    <script src="github-api.js"></script>
+
 </body>
 </html>
