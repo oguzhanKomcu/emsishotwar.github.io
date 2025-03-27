@@ -1,10 +1,29 @@
+
+
+// DOM Elementleri
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
-const gameOverModal = new bootstrap.Modal(document.getElementById('gameOverModal'), { backdrop: 'static', keyboard: false });
 const backgroundSelectModal = new bootstrap.Modal(document.getElementById('backgroundSelectModal'), { backdrop: 'static', keyboard: false });
-const finalScoreDisplay = document.getElementById('finalScore');
-const closeModalButton = document.getElementById('closeModal');
+
+// Yükleme ekranı için bir div oluştur
+const loadingScreen = document.createElement('div');
+loadingScreen.id = 'loadingScreen';
+loadingScreen.style.position = 'fixed';
+loadingScreen.style.top = '0';
+loadingScreen.style.left = '0';
+loadingScreen.style.width = '100%';
+loadingScreen.style.height = '100%';
+loadingScreen.style.backgroundColor = '#0000FF'; // Mavi arka plan
+loadingScreen.style.display = 'flex';
+loadingScreen.style.justifyContent = 'center';
+loadingScreen.style.alignItems = 'center';
+loadingScreen.style.zIndex = '1000';
+loadingScreen.innerHTML = '<h1 style="color: white; font-family: Arial;">YÜKLENİYOR...</h1>';
+document.body.appendChild(loadingScreen);
+
+// Canvas'ı başlangıçta gizle
+canvas.style.display = 'none';
 
 // Oyunun başında skor ve canı açıkça ayarla
 if (scoreDisplay) {
@@ -358,11 +377,90 @@ function showGameOverModal() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     mcSound.pause();
     mcSound.currentTime = 0;
-    finalScoreDisplay.textContent = score;
-    gameOverModal.show();
+
+    // Skora göre mesaj belirle
+    let message = '';
+    if (score < 100) {
+        message = 'Biraz daha shot atmalısın!';
+    } else if (score >= 100 && score < 200) {
+        message = 'Bu skorla gerçekten zoru başardın aşko :D :D';
+    } else if (score >= 200 && score < 300) {
+        message = '6 litre PIRIL 10 liraydı, 4 litre PIRIL 21,90 kuruş aklınızı başınıza alın. :D :D :D';
+    } else if (score >= 300 && score < 400) {
+        message = 'Aşko sen Woodstock da hiç shot içmedin mi ?';
+    } else if (score >= 400 && score < 500) {
+        message = 'Senden iyi bir performans bekliyorum. Shot ustası olmana az kaldı!';
+    } else if (score >= 500 && score < 600) {
+        message = 'Bu skorla mahalle maçında "Topu bana atın la!" diye bağırırsın!';
+    } else if (score >= 600 && score < 700) {
+        message = 'Al ulan motivasyon.. Yapma lan acıtasyon.. Her günüm atraksiyon.. Bitmedi kondisyon ';
+    } else if (score >= 700 && score < 800) {
+        message = 'Kötü rüyalar görüyorum hocam. Uçan shotlar görüyorum.. :D :D';
+    } else if (score >= 800 && score < 900) {
+        message = 'Bu skorla mahallede "Shot Abi" derler sana!';
+    } else if (score >= 900 && score < 1000) {
+        message = 'Bir adım ötesi gelse bir şarkı patlatırdım senin için :D :D';
+    } else if (score >= 1000 && score < 1100) {
+        message = 'Bu skorla "Eskiden her şey 1 liraydı" muhabbetini başlatırsın!';
+    } else if (score >= 1100 && score < 1200) {
+        message = 'Helal olsun, çay ocağından bedava tost kazandın!';
+    } else if (score >= 1200 && score < 1300) {
+        message = 'Bu performansla dolmuşta "Şoför bey bi güzellik yap" dersin, yapar!';
+    } else if (score >= 1300 && score < 1400) {
+        message = 'Tamamdır, annene "Oğlum shot işini çözdü" dedirtebildin!';
+    } else if (score >= 1400 && score < 1500) {
+        message = 'Bir MC Bulls olmasa da yine de efsane bir performans!';
+    } else if (score >= 1500 && score < 1600) {
+        message = 'Efsanesin, simitçi abiden "Çaylar benden" sözü aldın!';
+    } else if (score >= 1600 && score < 1700) {
+        message = 'Bu ne hız lan, BİM’in kasiyeri bile yetişemez sana!';
+    } else if (score >= 1700 && score < 1800) {
+        message = 'Shotlarınla adın Taksim meydanında anons edilir: "Bu adam kral!"';
+    } else if (score >= 1800 && score < 1900) {
+        message = 'Bu skorla "Eskiden her şey 1 liraydı" muhabbetini başlatırsın!';
+    } else if (score >= 1900 && score < 2000) {
+        message = 'Bir shot daha atarsan uzaya roket gönderirsin, dikkat et! :D :D';
+    } else if (score >= 2000) {
+        message = 'OHAAAA HELALL OLSUNN BE SANAA !!!';
+    }
+
+    // Canvas üzerine mesajı çiz
+    ctx.fillStyle = '#fff';
+    ctx.font = '24px Arial';
+    ctx.textAlign = 'center';
+
+    const scoreText = `Skorun: ${score}`;
+    ctx.fillText(scoreText, canvas.width / 2, canvas.height / 2 - 20);
+
+    const maxWidth = canvas.width - 40;
+    const lineHeight = 30;
+    const words = message.split(' ');
+    let line = '';
+    let y = canvas.height / 2 + 10;
+
+    for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i] + ' ';
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && i > 0) {
+            ctx.fillText(line, canvas.width / 2, y);
+            line = words[i] + ' ';
+            y += lineHeight;
+        } else {
+            line = testLine;
+        }
+    }
+    ctx.fillText(line, canvas.width / 2, y);
+
+    ctx.fillStyle = '#ff0';
+    ctx.font = '20px Arial';
+    ctx.fillText('Tekrar Oynamak İçin Enter\'a Bas', canvas.width / 2, canvas.height - 50);
 }
 
+// Enter tuşu ile arka plan seçimini tetikleme
 document.addEventListener('keydown', (e) => {
+    if (gameOver && e.key === 'Enter') {
+        backgroundSelectModal.show();
+    }
     if (gameOver || !gameStarted) return;
     if (e.key === 'ArrowLeft') keys.left = true;
     if (e.key === 'ArrowRight') keys.right = true;
@@ -379,16 +477,12 @@ document.addEventListener('keyup', (e) => {
     if (e.key === ' ') keys.shoot = false;
 });
 
-// "Tamam" butonuna basıldığında arka plan seçim modalını aç
-closeModalButton.addEventListener('click', () => {
-    gameOverModal.hide();
-    backgroundSelectModal.show(); // Oyun bittiğinde arka plan seçim modalını aç
-});
-
 // Arka plan değiştirme fonksiyonu
 function changeBackground(bgUrl) {
     document.body.style.background = `url('${bgUrl}') no-repeat center center fixed`;
     document.body.style.backgroundSize = 'cover';
+    canvas.style.display = 'block'; // Canvas'ı görünür yap
+    startGame();
 }
 
 // Arka plan seçim butonlarına tıklama olayını ekle
@@ -397,7 +491,6 @@ document.querySelectorAll('.select-bg-btn').forEach(button => {
         const bgUrl = button.getAttribute('data-bg');
         changeBackground(bgUrl);
         backgroundSelectModal.hide();
-        startGame();
     });
 });
 
@@ -409,7 +502,8 @@ const totalSounds = 5;
 
 function checkAllLoaded() {
     if (imagesLoaded === totalImages && soundsLoaded === totalSounds) {
-        backgroundSelectModal.show(); // Resimler ve sesler yüklendiğinde arka plan seçim modalını aç
+        loadingScreen.style.display = 'none'; // Yükleme ekranını gizle
+        backgroundSelectModal.show(); // Arka plan seçim modalını aç
     }
 }
 
