@@ -24,8 +24,8 @@ loadingVideo.src = 'img/yukleniyorMami.mp4';
 loadingVideo.autoplay = true; // Otomatik oynat
 loadingVideo.loop = true; // Döngüde oynat
 loadingVideo.muted = true; // Ses kapalı (isteğe bağlı, eğer ses istemiyorsanız)
-loadingVideo.style.width = '800px'; // 800x800 boyut
-loadingVideo.style.height = '800px';
+loadingVideo.style.width = '400px'; // 800x800 boyut
+loadingVideo.style.height = '400px';
 loadingVideo.style.objectFit = 'cover'; // Videoyu 800x800 içine sığdır (oranı koruyarak)
 loadingScreen.appendChild(loadingVideo);
 document.body.appendChild(loadingScreen);
