@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
 const backgroundSelectModal = new bootstrap.Modal(document.getElementById('backgroundSelectModal'), { backdrop: 'static', keyboard: false });
 
-// Yükleme ekranı için bir div ve GIF elementi oluştur
+// Yükleme ekranı için bir div ve video elementi oluştur
 const loadingScreen = document.createElement('div');
 loadingScreen.id = 'loadingScreen';
 loadingScreen.style.position = 'fixed';
@@ -18,13 +18,16 @@ loadingScreen.style.justifyContent = 'center';
 loadingScreen.style.alignItems = 'center';
 loadingScreen.style.zIndex = '1000';
 
-// GIF elementi oluştur
-const loadingGif = document.createElement('img');
-loadingGif.src = 'img/yukleniyorMami.mp4';
-loadingGif.style.width = '800px'; // 800x800 boyut
-loadingGif.style.height = '800px';
-loadingGif.style.objectFit = 'cover'; // GIF'i 800x800 içine sığdır (oranı koruyarak)
-loadingScreen.appendChild(loadingGif);
+// Video elementi oluştur
+const loadingVideo = document.createElement('video');
+loadingVideo.src = 'img/yukleniyorMami.mp4';
+loadingVideo.autoplay = true; // Otomatik oynat
+loadingVideo.loop = true; // Döngüde oynat
+loadingVideo.muted = true; // Ses kapalı (isteğe bağlı, eğer ses istemiyorsanız)
+loadingVideo.style.width = '800px'; // 800x800 boyut
+loadingVideo.style.height = '800px';
+loadingVideo.style.objectFit = 'cover'; // Videoyu 800x800 içine sığdır (oranı koruyarak)
+loadingScreen.appendChild(loadingVideo);
 document.body.appendChild(loadingScreen);
 
 // Canvas'ı başlangıçta gizle
