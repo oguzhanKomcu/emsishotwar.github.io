@@ -4,6 +4,7 @@ const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
 const backgroundSelectModal = new bootstrap.Modal(document.getElementById('backgroundSelectModal'), { backdrop: 'static', keyboard: false });
 
+
 // Yükleme ekranı için bir div ve video elementi oluştur
 const loadingScreen = document.createElement('div');
 loadingScreen.id = 'loadingScreen';
@@ -29,7 +30,6 @@ loadingVideo.style.height = '400px';
 loadingVideo.style.objectFit = 'cover'; // Videoyu 800x800 içine sığdır (oranı koruyarak)
 loadingScreen.appendChild(loadingVideo);
 document.body.appendChild(loadingScreen);
-
 // Canvas'ı başlangıçta gizle
 canvas.style.display = 'none';
 
@@ -112,7 +112,8 @@ const enemyImages = [
     new Image(), new Image(), new Image(), new Image(), new Image(),
     new Image(), new Image(), new Image(), new Image(), new Image(),
     new Image(), new Image(), new Image(), new Image(), new Image(),
-    new Image(), new Image(), new Image(), new Image(), new Image()
+    new Image(), new Image(), new Image(), new Image(), new Image(),
+    new Image()
 ];
 enemyImages[0].src = 'img/oguz.jpg';
 enemyImages[1].src = 'img/alimert.jpg';
@@ -139,6 +140,7 @@ enemyImages[21].src = 'img/kelmamba.jpg';
 enemyImages[22].src = 'img/ramazan.jpg';
 enemyImages[23].src = 'img/hüso.jpg';
 enemyImages[24].src = 'img/giray.jpg';
+enemyImages[25].src = 'img/kivircik.jpg';
 
 let enemies = [];
 let score = 0;
