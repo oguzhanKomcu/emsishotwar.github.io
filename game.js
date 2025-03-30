@@ -285,7 +285,7 @@ function gameLoop() {
                     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
                     updateSpawnRate();
                     if (score % 50 === 0) {
-                        player.speed += 0.5;
+                        player.speed += 0.1;
                         enemySpeed += 0.2;
                     }
                     if (score >= 1000 && !isMcPlayed) {
