@@ -491,7 +491,8 @@ function changeBackground(bgUrl) {
         document.body.style.backgroundSize = 'cover';
         canvas.style.display = 'block';
         document.getElementById('gameTitle').style.display = 'block';
-        document.getElementById('score').style.display = 'block';
+        document.getElementById('score').style.display = 'block';    
+        document.getElementById('gameRules').style.display = 'block'; 
         startGame();
     };
 }
@@ -527,7 +528,8 @@ function checkAllLoaded() {
         loadingVideo.pause();
         loadingScreen.style.display = 'none';
         document.getElementById('gameTitle').style.display = 'none';
-        document.getElementById('score').style.display = 'none';
+        document.getElementById('score').style.display = 'none'; 
+        document.getElementById('gameRules').style.display = 'none'; 
         backgroundSelectModal.show();
     }
 }
