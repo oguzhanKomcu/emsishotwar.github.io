@@ -5,6 +5,9 @@ const scoreDisplay = document.getElementById('score');
 const backgroundSelectModal = new bootstrap.Modal(document.getElementById('backgroundSelectModal'), { backdrop: 'static', keyboard: false });
 const gameOverModal = new bootstrap.Modal(document.getElementById('gameOverModal'), { backdrop: 'static', keyboard: false });
 
+// Oyun sayfasının arka planını koyu mavi yap
+document.body.style.backgroundColor = '#00008B';
+
 // Yükleme ekranı için bir div ve video elementi oluştur
 const loadingScreen = document.createElement('div');
 loadingScreen.id = 'loadingScreen';
@@ -13,7 +16,7 @@ loadingScreen.style.top = '0';
 loadingScreen.style.left = '0';
 loadingScreen.style.width = '100%';
 loadingScreen.style.height = '100%';
-loadingScreen.style.backgroundColor = '#0000FF'; // Mavi arka plan
+loadingScreen.style.backgroundColor = '#00008B'; // Koyu mavi arka plan
 loadingScreen.style.display = 'flex';
 loadingScreen.style.justifyContent = 'center';
 loadingScreen.style.alignItems = 'center';
@@ -22,11 +25,11 @@ loadingScreen.style.zIndex = '1000';
 // Video elementi oluştur
 const loadingVideo = document.createElement('video');
 loadingVideo.src = 'img/yukleniyorMami.mp4';
-loadingVideo.autoplay = true; // Otomatik oynat
-loadingVideo.muted = true; // Ses kapalı (isteğe bağlı, eğer ses istemiyorsanız)
-loadingVideo.style.width = '300px'; // 800x800 boyut
+loadingVideo.autoplay = true;
+loadingVideo.muted = true;
+loadingVideo.style.width = '300px';
 loadingVideo.style.height = '300px';
-loadingVideo.style.objectFit = 'cover'; // Videoyu 800x800 içine sığdır (oranı koruyarak)
+loadingVideo.style.objectFit = 'cover';
 loadingScreen.appendChild(loadingVideo);
 document.body.appendChild(loadingScreen);
 
@@ -70,6 +73,9 @@ const player = {
     originalX: 0
 };
 
+// Seçilen arka planı saklamak için değişken
+let currentBackground = null;
+
 // Canvas boyutunu ayarla
 function resizeCanvas() {
     const maxWidth = 800;
@@ -95,7 +101,8 @@ function resizeCanvas() {
     player.y = canvas.height - 60;
     player.originalX = player.x;
 
-    ctx.fillStyle = '#000';
+    // Canvas arka planını opak koyu gri yap
+    ctx.fillStyle = 'rgba(50, 50, 50, 0.8)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -238,7 +245,12 @@ function updateShake() {
 function gameLoop() {
     if (gameOver || !gameStarted) return;
 
-    ctx.fillStyle = '#000';
+    // Seçilen arka planı canvas'a çiz
+    if (currentBackground) {
+        ctx.drawImage(currentBackground, 0, 0, canvas.width, canvas.height);
+    }
+    // Opak katman ekle
+    ctx.fillStyle = 'rgba(50, 50, 50, 0.8)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     updateShake();
@@ -383,11 +395,9 @@ function startGame() {
 }
 
 function showGameOverModal() {
-    // MC şarkısını durdur
     mcSound.pause();
     mcSound.currentTime = 0;
 
-    // Skora göre mesaj belirle
     let message = '';
     if (score < 100) {
         message = 'Biraz daha shot atmalısın!';
@@ -435,21 +445,14 @@ function showGameOverModal() {
         message = 'Benden sana bir tane bira  :D';
     }
 
-
-    // Modal içeriğini güncelle
     document.getElementById('finalScoreDisplay').textContent = `Skorun: ${score}`;
     document.getElementById('gameOverMessage').textContent = message;
 
-    // Diğer modalları kapat (eğer açıksa)
     backgroundSelectModal.hide();
-
-    // Game Over modalını göster
     gameOverModal.show();
 
-    // Hata ayıklama için log
     console.log('Game Over modalı gösterildi. Skor:', score, 'Mesaj:', message);
 
-    // "Tekrar Oyna" butonuna tıklama eventi
     document.getElementById('closeModalButton').onclick = () => {
         gameOverModal.hide();
         backgroundSelectModal.show();
@@ -480,12 +483,17 @@ document.addEventListener('keyup', (e) => {
 
 // Arka plan değiştirme fonksiyonu
 function changeBackground(bgUrl) {
-    document.body.style.background = `url('${bgUrl}') no-repeat center center fixed`;
-    document.body.style.backgroundSize = 'cover';
-    canvas.style.display = 'block'; // Canvas'ı görünür yap
-    document.getElementById('gameTitle').style.display = 'block';
-    document.getElementById('score').style.display = 'block';
-    startGame();
+    const bgImage = new Image();
+    bgImage.src = bgUrl;
+    bgImage.onload = () => {
+        currentBackground = bgImage;
+        document.body.style.background = `url('${bgUrl}') no-repeat center center fixed`;
+        document.body.style.backgroundSize = 'cover';
+        canvas.style.display = 'block';
+        document.getElementById('gameTitle').style.display = 'block';
+        document.getElementById('score').style.display = 'block';
+        startGame();
+    };
 }
 
 // Arka plan seçim butonlarına tıklama olayını ekle
@@ -497,6 +505,9 @@ document.querySelectorAll('.select-bg-btn').forEach(button => {
     });
 });
 
+// Arka plan seçim modalının arka planını koyu mavi yap
+document.getElementById('backgroundSelectModal').style.backgroundColor = '#00008B';
+
 // Resim ve ses yüklenmesini kontrol et
 let imagesLoaded = 0;
 let soundsLoaded = 0;
@@ -504,7 +515,6 @@ const totalImages = enemyImages.length + 3; // enemyImages + bulletImage + playe
 const totalSounds = 5;
 let assetsLoaded = false;
 
-// Tüm varlıkların (resim ve ses) yüklenip yüklenmediğini kontrol et
 function checkAssetsLoaded() {
     if (imagesLoaded === totalImages && soundsLoaded === totalSounds) {
         assetsLoaded = true;
@@ -512,24 +522,21 @@ function checkAssetsLoaded() {
     }
 }
 
-// Video bittiğinde veya varlıklar yüklendiğinde kontrol et
 function checkAllLoaded() {
     if (assetsLoaded) {
-        loadingVideo.pause(); // Videoyu durdur
-        loadingScreen.style.display = 'none'; // Yükleme ekranını gizle
+        loadingVideo.pause();
+        loadingScreen.style.display = 'none';
         document.getElementById('gameTitle').style.display = 'none';
         document.getElementById('score').style.display = 'none';
-        backgroundSelectModal.show(); // Arka plan seçim modalını aç
+        backgroundSelectModal.show();
     }
 }
 
-// Video bittiğinde kontrol et
 loadingVideo.addEventListener('ended', () => {
     console.log('Video bitti.');
     checkAllLoaded();
 });
 
-// Varlık yüklemelerini kontrol et
 enemyImages.forEach((img, index) => {
     img.onload = () => {
         imagesLoaded++;
