@@ -6,7 +6,7 @@ const backgroundSelectModal = new bootstrap.Modal(document.getElementById('backg
 const gameOverModal = new bootstrap.Modal(document.getElementById('gameOverModal'), { backdrop: 'static', keyboard: false });
 
 // Oyun sayfasının arka planını koyu mavi yap
-document.body.style.backgroundColor = '#00008B';
+document.body.style.backgroundColor = 'rgba(12,109,164,255)';
 
 // Yükleme ekranı için bir div ve video elementi oluştur
 const loadingScreen = document.createElement('div');
@@ -16,7 +16,7 @@ loadingScreen.style.top = '0';
 loadingScreen.style.left = '0';
 loadingScreen.style.width = '100%';
 loadingScreen.style.height = '100%';
-loadingScreen.style.backgroundColor = '#00008B'; // Koyu mavi arka plan
+loadingScreen.style.backgroundColor = 'rgba(12,109,164,255)'; // Koyu mavi arka plan
 loadingScreen.style.display = 'flex';
 loadingScreen.style.justifyContent = 'center';
 loadingScreen.style.alignItems = 'center';
@@ -506,7 +506,7 @@ document.querySelectorAll('.select-bg-btn').forEach(button => {
 });
 
 // Arka plan seçim modalının arka planını koyu mavi yap
-document.getElementById('backgroundSelectModal').style.backgroundColor = '#00008B';
+document.getElementById('backgroundSelectModal').style.backgroundColor = 'rgb(12, 109, 164)';
 
 // Resim ve ses yüklenmesini kontrol et
 let imagesLoaded = 0;
