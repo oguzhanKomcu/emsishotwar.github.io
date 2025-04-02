@@ -66,7 +66,7 @@ const player = {
     y: 0,
     width: 50,
     height: 50,
-    speed: 300, // Piksel/saniye cinsinden hız
+    speed: 300, // Piksel/saniye cinsinden başlangıç hızı
     lives: 3,
     shake: false,
     shakeDuration: 0,
@@ -152,7 +152,7 @@ enemyImages[26].src = 'img/bavyeraOmer.jpg';
 let enemies = [];
 let score = 0;
 let spawnInterval = 2000;
-let enemySpeed = 100; // Piksel/saniye cinsinden hız
+let enemySpeed = 100; // Piksel/saniye cinsinden başlangıç hızı
 let lastSpawnTime = 0;
 let gameOver = false;
 let gameStarted = false;
@@ -171,7 +171,7 @@ function shootBullet() {
         y: player.y - bulletHeight,
         width: bulletWidth,
         height: bulletHeight,
-        speed: 600, // Piksel/saniye cinsinden hız
+        speed: 600, // Piksel/saniye cinsinden başlangıç hızı
         image: bulletImage
     });
     if (shootSound.paused || shootSound.currentTime === 0) {
@@ -192,7 +192,7 @@ function createEnemy() {
         y: -size,
         width: size,
         height: size,
-        speed: enemySpeed + Math.random() * 30, // Rastgele hız varyasyonu
+        speed: enemySpeed + Math.random() * 30,
         image: image
     });
 }
@@ -290,8 +290,10 @@ function gameLoop(currentTime) {
                     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
                     updateSpawnRate();
                     if (score % 50 === 0) {
-                        player.speed += 10; // Hız artışı piksel/saniye
-                        enemySpeed += 20;
+                        player.speed += 50; // Her 50 puanda karakter hızı 50 piksel/saniye artar
+                        bullets.forEach(b => b.speed += 50); // Mevcut mermilerin hızı artar
+                        enemySpeed += 30; // Düşman hızı artar
+                        console.log(`Hızlar güncellendi - Oyuncu: ${player.speed}, Mermi: ${bullets[0]?.speed || 600}, Düşman: ${enemySpeed}`);
                     }
                     if (score >= 1000 && !isMcPlayed) {
                         mcSound.play().catch(error => console.error('MC şarkısı çalma hatası:', error));
@@ -396,7 +398,7 @@ function startGame() {
     keys.right = false;
     keys.shoot = false;
     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
-    lastTime = performance.now(); // Oyun döngüsü için başlangıç zamanı
+    lastTime = performance.now();
     gameLoop(performance.now());
 }
 
