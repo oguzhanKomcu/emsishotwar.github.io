@@ -253,7 +253,7 @@ function updateBeerSpawn() {
 
 function updateResetBonusSpawn() {
     if (gameOver || !gameStarted) return;
-    if (score >= 500 && score % 500 === 0 && score > lastResetBonusScore && resetBonuses.length < 1) {
+    if (score >= 300 && score % 300 === 0 && score > lastResetBonusScore && resetBonuses.length < 1) {
         createResetBonus();
         lastResetBonusScore = score; // Son bonusun çıktığı skoru güncelle
     }
