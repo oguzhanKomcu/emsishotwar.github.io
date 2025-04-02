@@ -219,7 +219,7 @@ function createBeer() {
 }
 
 function createResetBonus() {
-    const size = 30;
+    const size = 60;
     const x = Math.random() * (canvas.width - size);
     resetBonuses.push({
         x: x,
