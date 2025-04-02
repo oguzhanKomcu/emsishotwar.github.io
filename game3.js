@@ -53,12 +53,17 @@ const gameOverSound = new Audio('img/arcadegameover.wav');
 const shootSound = new Audio('img/bardaksesi.wav');
 const mcSound = new Audio('img/mc.mp3');
 const beerSound = new Audio('img/biraSes.mp3');
+const resetSound = new Audio('img/resetSound.wav'); // Yeni bonus için ses (dosya eklemelisin)
 
 let isMcPlayed = false;
 
 // Bira (can) resmi
 const beerImage = new Image();
 beerImage.src = 'img/bira.png';
+
+// Yeni bonus (hız sıfırlama) resmi
+const resetBonusImage = new Image();
+resetBonusImage.src = 'img/resetBonus.png'; // Bu dosyayı projene eklemelisin
 
 // Oyuncu
 const player = {
@@ -161,6 +166,10 @@ let beers = [];
 let lastBeerSpawnTime = 0;
 const beerSpawnInterval = 15000;
 
+let resetBonuses = [];
+let lastResetBonusSpawnTime = 0;
+const resetBonusSpawnInterval = 20000; // 20 saniyede bir
+
 let keys = { left: false, right: false, shoot: false };
 
 function shootBullet() {
@@ -210,6 +219,19 @@ function createBeer() {
     });
 }
 
+function createResetBonus() {
+    const size = 30;
+    const x = Math.random() * (canvas.width - size);
+    resetBonuses.push({
+        x: x,
+        y: -size,
+        width: size,
+        height: size,
+        speed: enemySpeed,
+        image: resetBonusImage
+    });
+}
+
 function updateSpawnRate() {
     if (gameOver || !gameStarted) return;
     spawnInterval = Math.max(500, 2000 - Math.floor(score / 50) * 200);
@@ -227,6 +249,14 @@ function updateBeerSpawn() {
     if (score >= 300 && Date.now() - lastBeerSpawnTime > beerSpawnInterval && beers.length < 1) {
         createBeer();
         lastBeerSpawnTime = Date.now();
+    }
+}
+
+function updateResetBonusSpawn() {
+    if (gameOver || !gameStarted) return;
+    if (score >= 500 && Date.now() - lastResetBonusSpawnTime > resetBonusSpawnInterval && resetBonuses.length < 1) {
+        createResetBonus();
+        lastResetBonusSpawnTime = Date.now();
     }
 }
 
@@ -302,9 +332,6 @@ function gameLoop(currentTime) {
                         bullets.forEach(b => b.speed += 150); // Shot hızı düşmanın %75’i kadar artar
                         console.log(`Hızlar güncellendi - Oyuncu: ${player.speed}, Mermi: ${bullets[0]?.speed || 600}, Düşman: ${enemySpeed}`);
                     }
-                    if (score % 1000 === 0 && score > 0) { // Her 1000 puanda hızlar sıfırlanır
-                        resetSpeeds();
-                    }
                     if (score >= 1000 && !isMcPlayed) {
                         mcSound.play().catch(error => console.error('MC şarkısı çalma hatası:', error));
                         isMcPlayed = true;
@@ -369,8 +396,28 @@ function gameLoop(currentTime) {
         }
     });
 
+    resetBonuses.forEach((bonus, index) => {
+        bonus.y += bonus.speed * deltaTime;
+        ctx.drawImage(bonus.image, bonus.x, bonus.y, bonus.width, bonus.height);
+
+        if (
+            bonus.y + bonus.height > player.y &&
+            bonus.x < player.x + player.width &&
+            bonus.x + bonus.width > player.x
+        ) {
+            resetSpeeds(); // Hızları sıfırla
+            resetBonuses.splice(index, 1);
+            resetSound.play().catch(error => console.error('Reset bonus sesi çalma hatası:', error));
+        }
+
+        if (bonus.y > canvas.height) {
+            resetBonuses.splice(index, 1);
+        }
+    });
+
     updateSpawnRate();
     updateBeerSpawn();
+    updateResetBonusSpawn();
     requestAnimationFrame(gameLoop);
 }
 
@@ -378,6 +425,7 @@ function resetGameState() {
     enemies = [];
     bullets = [];
     beers = [];
+    resetBonuses = [];
     score = 0;
     spawnInterval = 2000;
     enemySpeed = 100;
@@ -396,6 +444,7 @@ function startGame() {
     enemies = [];
     bullets = [];
     beers = [];
+    resetBonuses = [];
     score = 0;
     spawnInterval = 2000;
     enemySpeed = 100;
@@ -530,8 +579,8 @@ document.getElementById('backgroundSelectModal').style.backgroundColor = 'rgb(12
 // Resim ve ses yüklenmesini kontrol et
 let imagesLoaded = 0;
 let soundsLoaded = 0;
-const totalImages = enemyImages.length + 3; // enemyImages + bulletImage + playerImage + beerImage
-const totalSounds = 5;
+const totalImages = enemyImages.length + 4; // enemyImages + bulletImage + playerImage + beerImage + resetBonusImage
+const totalSounds = 6; // Mevcut sesler + resetSound
 let assetsLoaded = false;
 
 function checkAssetsLoaded() {
@@ -587,6 +636,13 @@ beerImage.onload = () => {
 };
 beerImage.onerror = () => console.error(`Bira resmi yüklenemedi: ${beerImage.src}`);
 
+resetBonusImage.onload = () => {
+    imagesLoaded++;
+    console.log(`Resim yüklendi: ${resetBonusImage.src}`);
+    checkAssetsLoaded();
+};
+resetBonusImage.onerror = () => console.error(`Reset bonus resmi yüklenemedi: ${resetBonusImage.src}`);
+
 lifeLostSound.onloadeddata = () => {
     soundsLoaded++;
     console.log('Can kaybı sesi yüklendi.');
@@ -596,7 +652,7 @@ lifeLostSound.onerror = () => console.error('Can kaybı sesi yüklenemedi: ' + l
 
 gameOverSound.onloadeddata = () => {
     soundsLoaded++;
-    console.log('Oyun bitti ses056i yüklendi.');
+    console.log('Oyun bitti sesi yüklendi.');
     checkAssetsLoaded();
 };
 gameOverSound.onerror = () => console.error('Oyun bitti sesi yüklenemedi: ' + gameOverSound.src);
@@ -621,3 +677,10 @@ beerSound.onloadeddata = () => {
     checkAssetsLoaded();
 };
 beerSound.onerror = () => console.error('Bira sesi yüklenemedi: ' + beerSound.src);
+
+resetSound.onloadeddata = () => {
+    soundsLoaded++;
+    console.log('Reset bonus sesi yüklendi.');
+    checkAssetsLoaded();
+};
+resetSound.onerror = () => console.error('Reset bonus sesi yüklenemedi: ' + resetSound.src);
