@@ -53,7 +53,7 @@ const gameOverSound = new Audio('img/arcadegameover.wav');
 const shootSound = new Audio('img/bardaksesi.wav');
 const mcSound = new Audio('img/mc.mp3');
 const beerSound = new Audio('img/biraSes.mp3');
-const resetSound = new Audio('img/resetSound.wav'); // Yeni bonus için ses (dosya eklemelisin)
+const resetSound = new Audio('img/resetSound.mp3'); // Yeni bonus için ses (dosya eklemelisin)
 
 let isMcPlayed = false;
 
