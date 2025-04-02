@@ -53,7 +53,7 @@ const gameOverSound = new Audio('img/arcadegameover.wav');
 const shootSound = new Audio('img/bardaksesi.wav');
 const mcSound = new Audio('img/mc.mp3');
 const beerSound = new Audio('img/biraSes.mp3');
-const resetSound = new Audio('img/resetSound.mp3'); // Yeni bonus için ses (dosya eklemelisin)
+const resetSound = new Audio('img/resetSound.wav'); // Yeni bonus için ses (dosya eklemelisin)
 
 let isMcPlayed = false;
 
@@ -167,8 +167,7 @@ let lastBeerSpawnTime = 0;
 const beerSpawnInterval = 15000;
 
 let resetBonuses = [];
-let lastResetBonusSpawnTime = 0;
-const resetBonusSpawnInterval = 20000; // 20 saniyede bir
+let lastResetBonusScore = 0; // Son bonusun çıktığı skoru takip etmek için
 
 let keys = { left: false, right: false, shoot: false };
 
@@ -254,9 +253,9 @@ function updateBeerSpawn() {
 
 function updateResetBonusSpawn() {
     if (gameOver || !gameStarted) return;
-    if (score >= 500 && Date.now() - lastResetBonusSpawnTime > resetBonusSpawnInterval && resetBonuses.length < 1) {
+    if (score >= 500 && score % 500 === 0 && score > lastResetBonusScore && resetBonuses.length < 1) {
         createResetBonus();
-        lastResetBonusSpawnTime = Date.now();
+        lastResetBonusScore = score; // Son bonusun çıktığı skoru güncelle
     }
 }
 
@@ -327,9 +326,9 @@ function gameLoop(currentTime) {
                     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
                     updateSpawnRate();
                     if (score % 50 === 0) {
-                        enemySpeed += 200; // Düşman hızı 200 piksel/saniye artar
-                        player.speed += 100; // Karakter hızı düşmanın yarısı kadar artar
-                        bullets.forEach(b => b.speed += 150); // Shot hızı düşmanın %75’i kadar artar
+                        enemySpeed += 30; // Düşman hızı 30 piksel/saniye artar
+                        player.speed += 50; // Karakter hızı 50 piksel/saniye artar
+                        bullets.forEach(b => b.speed += 50); // Shot hızı 50 piksel/saniye artar
                         console.log(`Hızlar güncellendi - Oyuncu: ${player.speed}, Mermi: ${bullets[0]?.speed || 600}, Düşman: ${enemySpeed}`);
                     }
                     if (score >= 1000 && !isMcPlayed) {
@@ -434,6 +433,7 @@ function resetGameState() {
     player.shake = false;
     player.shakeDuration = 0;
     isMcPlayed = false;
+    lastResetBonusScore = 0; // Oyun başlarken sıfırla
     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
     resizeCanvas();
 }
@@ -453,6 +453,7 @@ function startGame() {
     player.shake = false;
     player.shakeDuration = 0;
     isMcPlayed = false;
+    lastResetBonusScore = 0; // Oyun başlarken sıfırla
     keys.left = false;
     keys.right = false;
     keys.shoot = false;
