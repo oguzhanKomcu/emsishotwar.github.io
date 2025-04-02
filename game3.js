@@ -53,7 +53,7 @@ const gameOverSound = new Audio('img/arcadegameover.wav');
 const shootSound = new Audio('img/bardaksesi.wav');
 const mcSound = new Audio('img/mc.mp3');
 const beerSound = new Audio('img/biraSes.mp3');
-const resetSound = new Audio('img/resetSound.mp3'); // Yeni bonus için ses (dosya eklemelisin)
+const resetSound = new Audio('img/resetSound.mp3'); // Yeni bonus için ses
 
 let isMcPlayed = false;
 
@@ -63,7 +63,7 @@ beerImage.src = 'img/bira.png';
 
 // Yeni bonus (hız sıfırlama) resmi
 const resetBonusImage = new Image();
-resetBonusImage.src = 'img/resetBonus.png'; // Bu dosyayı projene eklemelisin
+resetBonusImage.src = 'img/resetBonus.png';
 
 // Oyuncu
 const player = {
@@ -168,6 +168,7 @@ const beerSpawnInterval = 15000;
 
 let resetBonuses = [];
 let lastResetBonusScore = 0; // Son bonusun çıktığı skoru takip etmek için
+let bonusAnimations = []; // Hem reset hem bira animasyonlarını saklamak için
 
 let keys = { left: false, right: false, shoot: false };
 
@@ -278,6 +279,18 @@ function resetSpeeds() {
     console.log('Hızlar sıfırlandı - Oyuncu: 300, Mermi: 600, Düşman: 100');
 }
 
+function drawBonusAnimation(x, y, type) {
+    bonusAnimations.push({
+        x: x,
+        y: y,
+        type: type, // 'reset' veya 'beer' olarak ayırt etmek için
+        startTime: performance.now(),
+        duration: 1000, // 1 saniye süre
+        progress: 0,
+        active: true
+    });
+}
+
 let lastTime = 0;
 
 function gameLoop(currentTime) {
@@ -378,7 +391,7 @@ function gameLoop(currentTime) {
         ctx.drawImage(beer.image, beer.x, beer.y, beer.width, beer.height);
 
         if (
-            beer.y + beer.height > player.y &&
+            beer.y + beer.height > player.y && // Düzeltme: bonus.height → beer.height
             beer.x < player.x + player.width &&
             beer.x + beer.width > player.x
         ) {
@@ -386,6 +399,7 @@ function gameLoop(currentTime) {
                 player.lives += 1;
                 scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
             }
+            drawBonusAnimation(beer.x + beer.width / 2, beer.y - 20, 'beer'); // Bira animasyonunu başlat
             beers.splice(index, 1);
             beerSound.play().catch(error => console.error('Bira sesi çalma hatası:', error));
         }
@@ -405,12 +419,50 @@ function gameLoop(currentTime) {
             bonus.x + bonus.width > player.x
         ) {
             resetSpeeds(); // Hızları sıfırla
+            drawBonusAnimation(bonus.x + bonus.width / 2, bonus.y - 20, 'reset'); // Reset animasyonunu başlat
             resetBonuses.splice(index, 1);
             resetSound.play().catch(error => console.error('Reset bonus sesi çalma hatası:', error));
         }
 
         if (bonus.y > canvas.height) {
             resetBonuses.splice(index, 1);
+        }
+    });
+
+    // Bonus animasyonlarını çiz
+    bonusAnimations.forEach((anim, index) => {
+        if (!anim.active) return;
+
+        const elapsed = currentTime - anim.startTime;
+        anim.progress = Math.min(elapsed / anim.duration, 1); // 0-1 arası ilerleme
+
+        // Animasyonun y pozisyonunu yukarı kaydır
+        const animY = anim.y - anim.progress * 100; // 100 piksel yukarı hareket
+        const animSize = 40; // Ufak boyut
+
+        // Animasyon tipine göre resim ve yazı seç
+        const image = anim.type === 'reset' ? resetBonusImage : beerImage;
+        const text = anim.type === 'reset' ? "Kahveni iç, bi sakinleş :D" : "İçtin birayı, kaptın canı :D";
+
+        // Resmi çiz
+        ctx.drawImage(
+            image,
+            anim.x - animSize / 2,
+            animY - animSize / 2,
+            animSize,
+            animSize
+        );
+
+        // Yazıyı altın rengiyle çiz
+        ctx.font = '20px Arial';
+        ctx.fillStyle = 'gold'; // Altın rengi
+        ctx.textAlign = 'center';
+        ctx.fillText(text, anim.x, animY - animSize / 2 - 10);
+
+        // Animasyon bittiğinde kaldır
+        if (anim.progress >= 1) {
+            anim.active = false;
+            bonusAnimations.splice(index, 1);
         }
     });
 
@@ -425,6 +477,7 @@ function resetGameState() {
     bullets = [];
     beers = [];
     resetBonuses = [];
+    bonusAnimations = []; // Animasyonları da sıfırla
     score = 0;
     spawnInterval = 2000;
     enemySpeed = 100;
@@ -445,6 +498,7 @@ function startGame() {
     bullets = [];
     beers = [];
     resetBonuses = [];
+    bonusAnimations = []; // Animasyonları da sıfırla
     score = 0;
     spawnInterval = 2000;
     enemySpeed = 100;
