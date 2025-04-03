@@ -1,9 +1,10 @@
-// DOM Elementleri
+// DOM Elementleri ve Modal Tanımlamaları
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
 const backgroundSelectModal = new bootstrap.Modal(document.getElementById('backgroundSelectModal'), { backdrop: 'static', keyboard: false });
 const gameOverModal = new bootstrap.Modal(document.getElementById('gameOverModal'), { backdrop: 'static', keyboard: false });
+const gameRulesModal = new bootstrap.Modal(document.getElementById('gameRulesModal'), { backdrop: 'static', keyboard: false });
 
 // Oyun sayfasının arka planını koyu mavi yap
 document.body.style.backgroundColor = 'rgba(12,109,164,255)';
@@ -615,11 +616,11 @@ function changeBackground(bgUrl) {
         document.getElementById('gameTitle').style.display = 'block';
         document.getElementById('score').style.display = 'block';
         document.getElementById('gameRules').style.display = 'block';
-        startGame();
+        gameRulesModal.show(); // Oyun kuralları modalını aç
     };
 }
 
-// Arka plan seçim butonlarına tıklama olayını ekle
+// Arka plan seçim butonları (mevcut kodunuz)
 document.querySelectorAll('.select-bg-btn').forEach(button => {
     button.addEventListener('click', () => {
         const bgUrl = button.getAttribute('data-bg');
@@ -739,3 +740,10 @@ resetSound.onloadeddata = () => {
     checkAssetsLoaded();
 };
 resetSound.onerror = () => console.error('Reset bonus sesi yüklenemedi: ' + resetSound.src);
+
+
+// Oyun başlatma butonu
+document.getElementById('startGameButton').addEventListener('click', () => {
+    gameRulesModal.hide();
+    startGame();
+});
