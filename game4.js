@@ -52,6 +52,7 @@ playerImage.src = 'img/barmen.png';
 const lifeLostSound = new Audio('img/gameheat.wav');
 const gameOverSound = new Audio('img/arcadegameover.wav');
 const shootSound = new Audio('img/bardaksesi.wav');
+const gameSound = new Audio('img/game_Music.wav');
 const mcSound = new Audio('img/mc.mp3');
 const beerSound = new Audio('img/biraSes.mp3');
 const resetSound = new Audio('img/resetSound.mp3'); // Yeni bonus için ses
@@ -347,10 +348,10 @@ function gameLoop(currentTime) {
                         bullets.forEach(b => b.speed += 50); // Shot hızı 50 piksel/saniye artar
                         console.log(`Hızlar güncellendi - Oyuncu: ${player.speed}, Mermi: ${bullets[0]?.speed || 600}, Düşman: ${enemySpeed}`);
                     }
-                    if (score >= 1000 && !isMcPlayed) {
-                        mcSound.play().catch(error => console.error('MC şarkısı çalma hatası:', error));
-                        isMcPlayed = true;
-                    }
+                    // if (score >= 1000 && !isMcPlayed) {
+                    //     mcSound.play().catch(error => console.error('MC şarkısı çalma hatası:', error));
+                    //     isMcPlayed = true;
+                    // }
                 }
             }
         });
@@ -569,7 +570,7 @@ function showGameOverModal() {
     } else if (score >= 2400 && score < 2500) {
         message = 'Benden sana bir tane bira  :D';
     }
-
+    gameSound.pause();
     document.getElementById('finalScoreDisplay').textContent = `Skorun: ${score}`;
     document.getElementById('gameOverMessage').textContent = message;
     saveScore(score); // Skoru kaydet,
@@ -622,7 +623,8 @@ function changeBackground(bgUrl) {
         document.getElementById('gameTitle').style.display = 'block';
         document.getElementById('score').style.display = 'block';
         document.getElementById('gameRules').style.display = 'block';
-        document.getElementById('scoreboard').style.display = 'block'; // Skor tablosunu göster
+        document.getElementById('scoreboard').style.display = 'block'; 
+        document.getElementById('music-toggle').style.display = 'block'; 
         showModel("gameRulesModal"); // Arka plan seçimi modalını gizle
         window.displayScores();
     };
@@ -663,6 +665,7 @@ function checkAllLoaded() {
         document.getElementById('score').style.display = 'none';
         document.getElementById('gameRules').style.display = 'none';
         document.getElementById('scoreboard').style.display = 'none'; 
+        document.getElementById('music-toggle').style.display = 'none'; 
         initializeAuthListener(); // Firebase auth dinleyicisini başlat
     }
 }
@@ -752,10 +755,19 @@ resetSound.onloadeddata = () => {
 resetSound.onerror = () => console.error('Reset bonus sesi yüklenemedi: ' + resetSound.src);
 
 
+gameSound.onloadeddata = () => {
+    soundsLoaded++;
+    console.log('Oyun müziği yüklendi.');
+    checkAssetsLoaded();
+};
+gameSound.onerror = () => console.error('Oyun müziği  sesi yüklenemedi: ' + shootSound.src);
 // Oyun başlatma butonu
 document.getElementById('startGameButton').addEventListener('click', () => {
     hideModel("gameRulesModal"); // Oyun kuralları modalını gizle
-    //gameRulesModal.style.display = 'none';
+    gameSound.loop = true;
+    gameSound.autoplay = true;
+    gameSound.volume = 0.3;
+    gameSound.play().catch(error => console.error('Ses çalma hatası:', error));
     startGame();
 });
 
@@ -780,3 +792,22 @@ function hideModel(id) {
     
 }
 
+const toggleBtn = document.getElementById("music-toggle");
+
+toggleBtn.addEventListener("click", () => {
+  if (gameSound.paused) {
+    gameSound.play();
+    toggleBtn.textContent = "🔊 Müzik Kapat";
+  } else {
+    gameSound.pause();
+    toggleBtn.textContent = "🔇 Müzik Aç";
+  }
+    // Butonun focus'unu kaldır
+    toggleBtn.blur();
+});
+
+
+gameSound.addEventListener('ended', function() {
+  this.currentTime = 0;
+  this.play();
+});

@@ -14,7 +14,9 @@
 
         <div id="gameContainer" class="d-flex justify-content-center align-items-start">
             <!-- Sol taraf: Canvas ve diğer oyun elementleri -->
-            <div class="text-center position-relative me-4" id="gameCanvasContainer"> <!-- me-4 ile sağa boşluk -->
+            <div class="text-center position-relative me-4" id="gameCanvasContainer"> 
+                <audio id="bg-music" class="justify-content-center" src="game_Music.wav" loop autoplay></audio>
+                <button id="music-toggle" class="justify-content-center">🔊 Müzik Kapat</button>
                 <div id="gameTitle" class="bg-dark bg-opacity-75 text-white rounded p-2 mb-2">
                     En çok kişiye shot veren kazansın!
                 </div>
@@ -235,11 +237,12 @@
     <!-- <script src="github-api.js"></script> -->
      <script>
               document.addEventListener('hidden.bs.modal', function (event) {
-             // Снимаем фокус с активного элемента
+
              if (document.activeElement) {
              document.activeElement.blur();
              }
             });
+
     </script> 
 </body>
 </html>

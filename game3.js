@@ -52,6 +52,7 @@ playerImage.src = 'img/barmen.png';
 const lifeLostSound = new Audio('img/gameheat.wav');
 const gameOverSound = new Audio('img/arcadegameover.wav');
 const shootSound = new Audio('img/bardaksesi.wav');
+const gameSound = new Audio('img/game_Music.wav');
 const mcSound = new Audio('img/mc.mp3');
 const beerSound = new Audio('img/biraSes.mp3');
 const resetSound = new Audio('img/resetSound.mp3'); // Yeni bonus için ses
@@ -763,7 +764,12 @@ beerSound.onloadeddata = () => {
     checkAssetsLoaded();
 };
 beerSound.onerror = () => console.error('Bira sesi yüklenemedi: ' + beerSound.src);
-
+gameSound.onloadeddata = () => {
+    soundsLoaded++;
+    console.log('Oyun müziği yüklendi.');
+    checkAssetsLoaded();
+};
+gameSound.onerror = () => console.error('Oyun müziği  sesi yüklenemedi: ' + shootSound.src);
 resetSound.onloadeddata = () => {
     soundsLoaded++;
     console.log('Reset bonus sesi yüklendi.');
@@ -775,6 +781,8 @@ resetSound.onerror = () => console.error('Reset bonus sesi yüklenemedi: ' + res
 // Oyun başlatma butonu
 document.getElementById('startGameButton').addEventListener('click', () => {
     gameRulesModal.hide();
+    gameSound.play();
+    
     startGame();
 });
 
