@@ -1,9 +1,10 @@
-// DOM Elementleri
+// DOM Elementleri ve Modal Tanımlamaları
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
-const backgroundSelectModal = new bootstrap.Modal(document.getElementById('backgroundSelectModal'), { backdrop: 'static', keyboard: false });
-const gameOverModal = new bootstrap.Modal(document.getElementById('gameOverModal'), { backdrop: 'static', keyboard: false });
+const backgroundSelectModal = document.getElementById('backgroundSelectModal');
+const gameOverModal = document.getElementById('gameOverModal');
+const gameRulesModal = document.getElementById('gameRulesModal');
 
 // Oyun sayfasının arka planını koyu mavi yap
 document.body.style.backgroundColor = 'rgba(12,109,164,255)';
@@ -53,12 +54,17 @@ const gameOverSound = new Audio('img/arcadegameover.wav');
 const shootSound = new Audio('img/bardaksesi.wav');
 const mcSound = new Audio('img/mc.mp3');
 const beerSound = new Audio('img/biraSes.mp3');
+const resetSound = new Audio('img/resetSound.mp3'); // Yeni bonus için ses
 
 let isMcPlayed = false;
 
 // Bira (can) resmi
 const beerImage = new Image();
 beerImage.src = 'img/bira.png';
+
+// Yeni bonus (hız sıfırlama) resmi
+const resetBonusImage = new Image();
+resetBonusImage.src = 'img/resetBonus.png';
 
 // Oyuncu
 const player = {
@@ -120,7 +126,7 @@ const enemyImages = [
     new Image(), new Image(), new Image(), new Image(), new Image(),
     new Image(), new Image(), new Image(), new Image(), new Image(),
     new Image(), new Image(), new Image(), new Image(), new Image(),
-    new Image(), new Image()
+    new Image(), new Image(),  new Image(), new Image()
 ];
 enemyImages[0].src = 'img/oguz.jpg';
 enemyImages[1].src = 'img/alimert.jpg';
@@ -149,6 +155,8 @@ enemyImages[23].src = 'img/hüso.jpg';
 enemyImages[24].src = 'img/giray.jpg';
 enemyImages[25].src = 'img/kivircik.jpg';
 enemyImages[26].src = 'img/bavyeraOmer.jpg';
+enemyImages[27].src = 'img/dogukan.jpg';
+enemyImages[28].src = 'img/mertImarov.jpg';
 let enemies = [];
 let score = 0;
 let spawnInterval = 2000;
@@ -160,6 +168,10 @@ let gameStarted = false;
 let beers = [];
 let lastBeerSpawnTime = 0;
 const beerSpawnInterval = 15000;
+
+let resetBonuses = [];
+let lastResetBonusScore = 0; // Son bonusun çıktığı skoru takip etmek için
+let bonusAnimations = []; // Hem reset hem bira animasyonlarını saklamak için
 
 let keys = { left: false, right: false, shoot: false };
 
@@ -210,6 +222,19 @@ function createBeer() {
     });
 }
 
+function createResetBonus() {
+    const size = 60;
+    const x = Math.random() * (canvas.width - size);
+    resetBonuses.push({
+        x: x,
+        y: -size,
+        width: size,
+        height: size,
+        speed: enemySpeed,
+        image: resetBonusImage
+    });
+}
+
 function updateSpawnRate() {
     if (gameOver || !gameStarted) return;
     spawnInterval = Math.max(500, 2000 - Math.floor(score / 50) * 200);
@@ -230,6 +255,14 @@ function updateBeerSpawn() {
     }
 }
 
+function updateResetBonusSpawn() {
+    if (gameOver || !gameStarted) return;
+    if (score >= 300 && score % 300 === 0 && score > lastResetBonusScore && resetBonuses.length < 1) {
+        createResetBonus();
+        lastResetBonusScore = score; // Son bonusun çıktığı skoru güncelle
+    }
+}
+
 function updateShake(deltaTime) {
     if (player.shake) {
         player.shakeDuration -= deltaTime * 60; // 60 FPS varsayımıyla ölçeklendirme
@@ -240,6 +273,25 @@ function updateShake(deltaTime) {
             player.x = player.originalX;
         }
     }
+}
+
+function resetSpeeds() {
+    player.speed = 300; // Başlangıç hızına geri dön
+    bullets.forEach(b => b.speed = 600); // Tüm mermileri başlangıç hızına sıfırla
+    enemySpeed = 100; // Düşman hızını başlangıç değerine sıfırla
+    console.log('Hızlar sıfırlandı - Oyuncu: 300, Mermi: 600, Düşman: 100');
+}
+
+function drawBonusAnimation(x, y, type) {
+    bonusAnimations.push({
+        x: x,
+        y: y,
+        type: type, // 'reset' veya 'beer' olarak ayırt etmek için
+        startTime: performance.now(),
+        duration: 1000, // 1 saniye süre
+        progress: 0,
+        active: true
+    });
 }
 
 let lastTime = 0;
@@ -290,9 +342,9 @@ function gameLoop(currentTime) {
                     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
                     updateSpawnRate();
                     if (score % 50 === 0) {
-                        player.speed += 50; // Her 50 puanda karakter hızı 50 piksel/saniye artar
-                        bullets.forEach(b => b.speed += 50); // Mevcut mermilerin hızı artar
-                        enemySpeed += 30; // Düşman hızı artar
+                        enemySpeed += 30; // Düşman hızı 30 piksel/saniye artar
+                        player.speed += 50; // Karakter hızı 50 piksel/saniye artar
+                        bullets.forEach(b => b.speed += 50); // Shot hızı 50 piksel/saniye artar
                         console.log(`Hızlar güncellendi - Oyuncu: ${player.speed}, Mermi: ${bullets[0]?.speed || 600}, Düşman: ${enemySpeed}`);
                     }
                     if (score >= 1000 && !isMcPlayed) {
@@ -342,7 +394,7 @@ function gameLoop(currentTime) {
         ctx.drawImage(beer.image, beer.x, beer.y, beer.width, beer.height);
 
         if (
-            beer.y + beer.height > player.y &&
+            beer.y + beer.height > player.y && // Düzeltme: bonus.height → beer.height
             beer.x < player.x + player.width &&
             beer.x + beer.width > player.x
         ) {
@@ -350,6 +402,7 @@ function gameLoop(currentTime) {
                 player.lives += 1;
                 scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
             }
+            drawBonusAnimation(beer.x + beer.width / 2, beer.y - 20, 'beer'); // Bira animasyonunu başlat
             beers.splice(index, 1);
             beerSound.play().catch(error => console.error('Bira sesi çalma hatası:', error));
         }
@@ -359,8 +412,66 @@ function gameLoop(currentTime) {
         }
     });
 
+    resetBonuses.forEach((bonus, index) => {
+        bonus.y += bonus.speed * deltaTime;
+        ctx.drawImage(bonus.image, bonus.x, bonus.y, bonus.width, bonus.height);
+
+        if (
+            bonus.y + bonus.height > player.y &&
+            bonus.x < player.x + player.width &&
+            bonus.x + bonus.width > player.x
+        ) {
+            resetSpeeds(); // Hızları sıfırla
+            drawBonusAnimation(bonus.x + bonus.width / 2, bonus.y - 20, 'reset'); // Reset animasyonunu başlat
+            resetBonuses.splice(index, 1);
+            resetSound.play().catch(error => console.error('Reset bonus sesi çalma hatası:', error));
+        }
+
+        if (bonus.y > canvas.height) {
+            resetBonuses.splice(index, 1);
+        }
+    });
+
+    // Bonus animasyonlarını çiz
+    bonusAnimations.forEach((anim, index) => {
+        if (!anim.active) return;
+
+        const elapsed = currentTime - anim.startTime;
+        anim.progress = Math.min(elapsed / anim.duration, 1); // 0-1 arası ilerleme
+
+        // Animasyonun y pozisyonunu yukarı kaydır
+        const animY = anim.y - anim.progress * 100; // 100 piksel yukarı hareket
+        const animSize = 40; // Ufak boyut
+
+        // Animasyon tipine göre resim ve yazı seç
+        const image = anim.type === 'reset' ? resetBonusImage : beerImage;
+        const text = anim.type === 'reset' ? "Kahveni iç, bi sakinleş :D" : "İçtin birayı, kaptın canı :D";
+
+        // Resmi çiz
+        ctx.drawImage(
+            image,
+            anim.x - animSize / 2,
+            animY - animSize / 2,
+            animSize,
+            animSize
+        );
+
+        // Yazıyı altın rengiyle çiz
+        ctx.font = '20px Arial';
+        ctx.fillStyle = 'gold'; // Altın rengi
+        ctx.textAlign = 'center';
+        ctx.fillText(text, anim.x, animY - animSize / 2 - 10);
+
+        // Animasyon bittiğinde kaldır
+        if (anim.progress >= 1) {
+            anim.active = false;
+            bonusAnimations.splice(index, 1);
+        }
+    });
+
     updateSpawnRate();
     updateBeerSpawn();
+    updateResetBonusSpawn();
     requestAnimationFrame(gameLoop);
 }
 
@@ -368,6 +479,8 @@ function resetGameState() {
     enemies = [];
     bullets = [];
     beers = [];
+    resetBonuses = [];
+    bonusAnimations = []; // Animasyonları da sıfırla
     score = 0;
     spawnInterval = 2000;
     enemySpeed = 100;
@@ -376,6 +489,7 @@ function resetGameState() {
     player.shake = false;
     player.shakeDuration = 0;
     isMcPlayed = false;
+    lastResetBonusScore = 0; // Oyun başlarken sıfırla
     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
     resizeCanvas();
 }
@@ -386,6 +500,8 @@ function startGame() {
     enemies = [];
     bullets = [];
     beers = [];
+    resetBonuses = [];
+    bonusAnimations = []; // Animasyonları da sıfırla
     score = 0;
     spawnInterval = 2000;
     enemySpeed = 100;
@@ -394,6 +510,7 @@ function startGame() {
     player.shake = false;
     player.shakeDuration = 0;
     isMcPlayed = false;
+    lastResetBonusScore = 0; // Oyun başlarken sıfırla
     keys.left = false;
     keys.right = false;
     keys.shoot = false;
@@ -455,23 +572,27 @@ function showGameOverModal() {
 
     document.getElementById('finalScoreDisplay').textContent = `Skorun: ${score}`;
     document.getElementById('gameOverMessage').textContent = message;
-
-    backgroundSelectModal.hide();
-    gameOverModal.show();
+    saveScore(score); // Skoru kaydet,
+    hideModel("backgroundSelectModal"); // Arka plan seçimi modalını gizle
+    showModel("gameOverModal"); // Oyun bitti modalını göster
 
     console.log('Game Over modalı gösterildi. Skor:', score, 'Mesaj:', message);
 
     document.getElementById('closeModalButton').onclick = () => {
-        gameOverModal.hide();
-        backgroundSelectModal.show();
+        hideModel("gameOverModal");
+        showModel("backgroundSelectModal");
+
     };
 }
 
 // Enter tuşu ile arka plan seçimini tetikleme
 document.addEventListener('keydown', (e) => {
     if (gameOver && e.key === 'Enter') {
-        gameOverModal.hide();
-        backgroundSelectModal.show();
+        hideModel("gameOverModal");
+        showModel("backgroundSelectModal");
+
+        // gameOverModal.style.display = 'none';
+        // backgroundSelectModal.style.display = 'block';
     }
     if (gameOver || !gameStarted) return;
     if (e.key === 'ArrowLeft') keys.left = true;
@@ -501,16 +622,19 @@ function changeBackground(bgUrl) {
         document.getElementById('gameTitle').style.display = 'block';
         document.getElementById('score').style.display = 'block';
         document.getElementById('gameRules').style.display = 'block';
-        startGame();
+        document.getElementById('scoreboard').style.display = 'block'; // Skor tablosunu göster
+        showModel("gameRulesModal"); // Arka plan seçimi modalını gizle
+        window.displayScores();
     };
 }
 
-// Arka plan seçim butonlarına tıklama olayını ekle
+// Arka plan seçim butonları (mevcut kodunuz)
 document.querySelectorAll('.select-bg-btn').forEach(button => {
     button.addEventListener('click', () => {
         const bgUrl = button.getAttribute('data-bg');
         changeBackground(bgUrl);
-        backgroundSelectModal.hide();
+        hideModel('backgroundSelectModal');
+        //backgroundSelectModal.style.display = 'none'; // Arka plan seçimi modalını kapat
     });
 });
 
@@ -520,8 +644,8 @@ document.getElementById('backgroundSelectModal').style.backgroundColor = 'rgb(12
 // Resim ve ses yüklenmesini kontrol et
 let imagesLoaded = 0;
 let soundsLoaded = 0;
-const totalImages = enemyImages.length + 3; // enemyImages + bulletImage + playerImage + beerImage
-const totalSounds = 5;
+const totalImages = enemyImages.length + 4; // enemyImages + bulletImage + playerImage + beerImage + resetBonusImage
+const totalSounds = 6; // Mevcut sesler + resetSound
 let assetsLoaded = false;
 
 function checkAssetsLoaded() {
@@ -538,7 +662,8 @@ function checkAllLoaded() {
         document.getElementById('gameTitle').style.display = 'none';
         document.getElementById('score').style.display = 'none';
         document.getElementById('gameRules').style.display = 'none';
-        backgroundSelectModal.show();
+        document.getElementById('scoreboard').style.display = 'none'; 
+        initializeAuthListener(); // Firebase auth dinleyicisini başlat
     }
 }
 
@@ -577,6 +702,13 @@ beerImage.onload = () => {
 };
 beerImage.onerror = () => console.error(`Bira resmi yüklenemedi: ${beerImage.src}`);
 
+resetBonusImage.onload = () => {
+    imagesLoaded++;
+    console.log(`Resim yüklendi: ${resetBonusImage.src}`);
+    checkAssetsLoaded();
+};
+resetBonusImage.onerror = () => console.error(`Reset bonus resmi yüklenemedi: ${resetBonusImage.src}`);
+
 lifeLostSound.onloadeddata = () => {
     soundsLoaded++;
     console.log('Can kaybı sesi yüklendi.');
@@ -611,3 +743,40 @@ beerSound.onloadeddata = () => {
     checkAssetsLoaded();
 };
 beerSound.onerror = () => console.error('Bira sesi yüklenemedi: ' + beerSound.src);
+
+resetSound.onloadeddata = () => {
+    soundsLoaded++;
+    console.log('Reset bonus sesi yüklendi.');
+    checkAssetsLoaded();
+};
+resetSound.onerror = () => console.error('Reset bonus sesi yüklenemedi: ' + resetSound.src);
+
+
+// Oyun başlatma butonu
+document.getElementById('startGameButton').addEventListener('click', () => {
+    hideModel("gameRulesModal"); // Oyun kuralları modalını gizle
+    //gameRulesModal.style.display = 'none';
+    startGame();
+});
+
+function showModel(id) {
+    document.getElementById(id).classList.add('show');
+    document.getElementById(id).style.display = 'block';
+    document.body.classList.add('modal-open');
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop fade show';
+    document.body.appendChild(backdrop);
+    
+}
+
+function hideModel(id) {
+
+    // Modal'ı gizlemek için
+    document.getElementById(id).classList.remove('show');
+    document.getElementById(id).style.display = 'none';
+    document.body.classList.remove('modal-open');
+    const existingBackdrop = document.querySelector('.modal-backdrop');
+    if (existingBackdrop) existingBackdrop.remove();
+    
+}
+

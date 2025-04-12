@@ -1,0 +1,74 @@
+
+    .modal-content {
+      background: linear-gradient(135deg, #1e1e2f, #2a2a4a);
+      color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: none;
+    }
+    .modal-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .modal-title {
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .btn-close {
+      filter: invert(1);
+    }
+    .form-control {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+    .form-control:focus {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #00ddeb;
+      box-shadow: 0 0 10px rgba(0, 221, 235, 0.5);
+      color: #fff;
+    }
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    .btn-primary {
+      background: linear-gradient(45deg, #00ddeb, #007bff);
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(45deg, #007bff, #00ddeb);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+    }
+    h4 {
+      font-weight: 700;
+      color: #00ddeb;
+      margin-bottom: 20px;
+    }
+    p {
+      color: rgba(255, 255, 255, 0.7);
+    }
+    a {
+      color: #00ddeb;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+    a:hover {
+      color: #fff;
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+ 

@@ -572,7 +572,7 @@ function showGameOverModal() {
 
     document.getElementById('finalScoreDisplay').textContent = `Skorun: ${score}`;
     document.getElementById('gameOverMessage').textContent = message;
-
+    saveScore(score); // Skoru kaydet,
     backgroundSelectModal.hide();
     gameOverModal.show();
 
@@ -607,19 +607,45 @@ document.addEventListener('keyup', (e) => {
 });
 
 // Arka plan değiştirme fonksiyonu
+// function changeBackground(bgUrl) {
+//     const bgImage = new Image();
+//     bgImage.src = bgUrl;
+//     bgImage.onload = () => {
+//         currentBackground = bgImage;
+//         document.body.style.background = `url('${bgUrl}') no-repeat center center fixed`;
+//         debugger;
+//         document.body.style.backgroundSize = 'cover';
+//         canvas.style.display = 'block';
+//         document.getElementById('gameTitle').style.display = 'block';
+//         document.getElementById('score').style.display = 'block';
+//         document.getElementById('gameRules').style.display = 'block';
+//         gameRulesModal.show(); // Oyun kuralları modalını aç
+//         window.displayScores();
+//     };
+// }
+
 function changeBackground(bgUrl) {
+    console.log('Arka plan değiştirme fonksiyonu çağrıldı:', bgUrl);
     const bgImage = new Image();
     bgImage.src = bgUrl;
     bgImage.onload = () => {
+        console.log('Arka plan resmi yüklendi.');
         currentBackground = bgImage;
         document.body.style.background = `url('${bgUrl}') no-repeat center center fixed`;
-        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundSize = 'cover'; ///testt
+        // testttt
+        backgroundSelectModal.hide();
         canvas.style.display = 'block';
         document.getElementById('gameTitle').style.display = 'block';
         document.getElementById('score').style.display = 'block';
         document.getElementById('gameRules').style.display = 'block';
+        document.getElementById('scoreboard').style.display = 'block';
+        console.log('Canvas ve diğer elementler görünür yapıldı.');
         gameRulesModal.show(); // Oyun kuralları modalını aç
+         window.displayScores();
+        console.log('displayScores fonksiyonu çağrıldı.');
     };
+    bgImage.onerror = () => console.error('Arka plan resmi yüklenemedi:', bgUrl);
 }
 
 // Arka plan seçim butonları (mevcut kodunuz)
@@ -654,8 +680,10 @@ function checkAllLoaded() {
         loadingScreen.style.display = 'none';
         document.getElementById('gameTitle').style.display = 'none';
         document.getElementById('score').style.display = 'none';
-        document.getElementById('gameRules').style.display = 'none';
-        backgroundSelectModal.show();
+        document.getElementById('gameRules').style.display = 'none'; 
+        document.getElementById('scoreboard').style.display = 'none'; 
+       initializeAuthListener(); // Firebase auth dinleyicisini başlat
+       //backgroundSelectModal.show();
     }
 }
 
@@ -749,3 +777,25 @@ document.getElementById('startGameButton').addEventListener('click', () => {
     gameRulesModal.hide();
     startGame();
 });
+
+function showModel(id) {
+    document.getElementById(id).classList.add('show');
+    document.getElementById(id).style.display = 'block';
+    document.body.classList.add('modal-open');
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop fade show';
+    document.body.appendChild(backdrop);
+    
+}
+
+function hideModel(id) {
+
+    // Modal'ı gizlemek için
+    document.getElementById(id).classList.remove('show');
+    document.getElementById(id).style.display = 'none';
+    document.body.classList.remove('modal-open');
+    const existingBackdrop = document.querySelector('.modal-backdrop');
+    if (existingBackdrop) existingBackdrop.remove();
+    
+}
+

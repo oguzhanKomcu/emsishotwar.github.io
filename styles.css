@@ -72,3 +72,42 @@ body::before {
     border: none;
 }
 
+
+    /* gameContainer için flex düzeni */
+    #gameContainer {
+        gap: 20px; /* Canvas ve skor tablosu arasında boşluk */
+    }
+
+    /* Skor tablosu stilleri */
+    #scoreboard {
+        min-width: 250px; /* Sabit bir genişlik */
+        max-height: 600px; /* Canvas ile aynı yükseklikte tutmak için */
+        overflow-y: auto; /* Uzun listelerde kaydırma çubuğu */
+    }
+
+    /* Skor listesi elemanları */
+    #score-list {
+        margin: 0;
+        padding: 0;
+    }
+
+    #score-list li {
+        display: flex;
+        justify-content: space-between; /* Kullanıcı adı sol, skor sağ */
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Scrollbar özelleştirme (opsiyonel) */
+    #score-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #score-list::-webkit-scrollbar-thumb {
+        background: #00ddeb;
+        border-radius: 4px;
+    }
+
+    #score-list::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+    }

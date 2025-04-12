@@ -6,28 +6,41 @@
     <title>Space War Game</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="register.css">
 </head>
 <body>
 
-    <div class="container-fluid d-flex justify-content-center align-items-center min-vh-100">
-        <div id="gameContainer" class="text-center position-relative">
-            <div id="gameTitle" class="bg-dark bg-opacity-75 text-white rounded p-2 mb-2">
-                En çok kişiye shot veren kazansın!
+    <div class="container-fluid d-flex justify-content-center align-items-center min-vh-100" id="mainContainer">
+
+        <div id="gameContainer" class="d-flex justify-content-center align-items-start">
+            <!-- Sol taraf: Canvas ve diğer oyun elementleri -->
+            <div class="text-center position-relative me-4" id="gameCanvasContainer"> <!-- me-4 ile sağa boşluk -->
+                <div id="gameTitle" class="bg-dark bg-opacity-75 text-white rounded p-2 mb-2">
+                    En çok kişiye shot veren kazansın!
+                </div>
+                <div id="score" class="bg-dark bg-opacity-75 text-white rounded p-2 mb-2">
+                    Skor: 0 | Can: <span id="livesCount">3</span>
+                </div>
+                <canvas id="gameCanvas" width="800" height="600" class="border border-light"></canvas>
+                <div id="gameRules" class="bg-dark bg-opacity-75 text-white rounded p-2 mt-2">
+                    <p>Boşluk tuşuna bas shotları yolla! Yön tuşları ile kontrolünü sağla!</p>
+                    <p>Birayı kap, can kazan! Bi kahveni iç yavaşla!</p>
+                </div>
             </div>
 
-            <div id="score" class="bg-dark bg-opacity-75 text-white rounded p-2 mb-2">
-                Skor: 0 | Can: <span id="livesCount">3</span>
-            </div>
-            <canvas id="gameCanvas" width="800" height="600" class="border border-light"></canvas>
-            <div id="gameRules" class="bg-dark bg-opacity-75 text-white rounded p-2 mb-2">
-              <p>Boşluk tuşuna bas shotları yolla!  Yön tuşları ile kontrolünü sağla!</p>
-               <p>Birayı kap, can kazan!  Bi kahveni iç yavaşla!</p> 
+            <!-- Sağ taraf: Skor tablosu -->
+            <div id="scoreboard" class="bg-dark bg-opacity-75 text-white rounded p-3">
+                <div id="game-section" >
+                    <p>Hoş geldin, <span id="current-user"></span>! <button onclick="logoutUser()" class="btn btn-danger btn-sm">Çıkış Yap</button></p>
+                </div> 
+                <h2>Skor Tablosu</h2>
+                <ul id="score-list" class="list-unstyled"></ul>
             </div>
         </div>
     </div>
 
     <!-- Arka Plan Seçim Modal -->
-    <div class="modal fade" id="backgroundSelectModal" tabindex="-1" aria-labelledby="backgroundSelectModalLabel" aria-hidden="true">
+    <div class="modal fade" id="backgroundSelectModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content bg-dark text-white">
                 <div class="modal-header">
@@ -90,7 +103,7 @@
     </div>
 
     <!-- Game Over Modal -->
-    <div class="modal fade" id="gameOverModal" tabindex="-1" aria-labelledby="gameOverModalLabel" aria-hidden="true">
+    <div class="modal fade" id="gameOverModal" tabindex="-1" >
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -107,25 +120,9 @@
         </div>
     </div>
 
-    <!-- Kullanıcı Adı Giriş Modal -->
-    <div class="modal fade" id="usernameModal" tabindex="-1" aria-labelledby="usernameModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="usernameModalLabel">Kullanıcı Adınızı Girin</h5>
-                </div>
-                <div class="modal-body">
-                    <input type="text" id="usernameInput" class="form-control" placeholder="Kullanıcı adınızı yazın" aria-label="Kullanıcı adı">
-                    <p id="usernameWarning" class="text-warning mt-2" style="display: none;">Bu kullanıcı adı zaten mevcut. Yeni bir isim girin.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="registerButton">Kayıt Ol</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
 <!-- Mevcut modallarınızın altına ekleyin -->
-<div class="modal fade" id="gameRulesModal" tabindex="-1" aria-labelledby="gameRulesModalLabel" aria-hidden="true">
+<div class="modal fade" id="gameRulesModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-white">
             <div class="modal-header">
@@ -182,8 +179,6 @@
                         </div>
                     </li>
                 </ul>
-
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="startGameButton">Oyunu Başlat</button>
@@ -192,19 +187,59 @@
     </div>
 </div>
 
+<div class="modal fade" id="authModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="authModalLabel">Giriş Yap / Kayıt Ol</h5>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Register Section -->
+                <div id="register-section" class="fade-in" style="display: none;">
+                    <h4>Kayıt Ol</h4>
+                    <div class="mb-3">
+                        <input type="text" id="register-username" class="form-control" placeholder="Kullanıcı adını gir" />
+                    </div>
+                    <div class="mb-3">
+                        <input type="email" id="register-email" class="form-control" placeholder="Emailini gir" />
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" id="register-password" class="form-control" placeholder="Şifreni gir" />
+                    </div>
+                    <button onclick="registerUser()" class="btn btn-primary w-100">Kayıt Ol</button>
+                    <p class="mt-3 text-center">Zaten hesabın var mı? <a href="#" onclick="showLogin()">Giriş Yap</a></p>
+                </div>
+
+                <!-- Login Section -->
+                <div id="login-section"  class="fade-in">
+                    <h4>Giriş Yap</h4>
+                    <div class="mb-3">
+                        <input type="text" id="login-username" class="form-control" placeholder="Kullanıcı adını gir" />
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" id="login-password" class="form-control" placeholder="Şifreni gir" />
+                    </div>
+                    <button onclick="loginUser()" class="btn btn-primary w-100">Giriş Yap</button>
+                    <p class="mt-3 text-center">Hesabın yok mu? <a href="#" onclick="showRegister()">Kayıt Ol</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="game3.js"></script>
+    <script src="firebase.js" type="module"></script>
+    <script src="game4.js" type="module"></script>
     <!-- <script src="github-api.js"></script> -->
-    <script>
-        // game.js ile github-api.js arasında iletişim
-        let originalShowGameOverModal = showGameOverModal;
-        showGameOverModal = async function() {
-            originalShowGameOverModal(); // Orijinal fonksiyonu çalıştır
-            if (window.currentUser && window.saveUserScore) {
-                await window.saveUserScore(window.currentUser.userId, window.currentUser.username, score); // Skoru kaydet
-                console.log(`Skor ${score}, ${window.currentUser.username} için kaydedildi`);
-            }
-        };
-    </script>
+     <script>
+              document.addEventListener('hidden.bs.modal', function (event) {
+             // Снимаем фокус с активного элемента
+             if (document.activeElement) {
+             document.activeElement.blur();
+             }
+            });
+    </script> 
 </body>
 </html>
