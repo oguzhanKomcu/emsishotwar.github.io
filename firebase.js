@@ -113,6 +113,8 @@ window.registerUser = async function() {
 
 // Giriş işlemi
 window.loginUser = async function() {
+  const button = document.getElementById('loginButton');
+  button.style.pointerEvents = 'none'; // Tıklanmayı engelle
   const username = document.getElementById("login-username").value;
   const password = document.getElementById("login-password").value;
 
