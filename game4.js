@@ -138,7 +138,7 @@ const enemyImages = [
     new Image(), new Image(), new Image(), new Image(), new Image(),
     new Image(), new Image(),  new Image(), new Image(), new Image(),
      new Image(),new Image(),new Image(),new Image(),new Image(),new Image()
-     ,new Image()
+     ,new Image(),new Image(),new Image()
 ];
 enemyImages[0].src = 'img/oguz.jpg';
 enemyImages[1].src = 'img/alimert.jpg';
