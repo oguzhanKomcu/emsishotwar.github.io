@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Canvas'ı başlangıçta gizle
     canvas.style.display = 'none'; 
     document.getElementById('gameTitle').style.display = 'none'; 
-    document.getElementById('mainContainer').style.display = 'none';
     document.getElementById('score').style.display = 'none';
     document.getElementById('gameRules').style.display = 'none';
     document.getElementById('scoreboard').style.display = 'none';
