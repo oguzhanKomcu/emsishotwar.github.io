@@ -65,6 +65,9 @@ window.isUsernameUnique = async function(username) {
 // Kullanıcı adı benzersizliğini kontrol et
 // Kayıt işlemi
 window.registerUser = async function() {
+  const button = document.getElementById('registerButton');
+  button.style.pointerEvents = 'none'; // Tıklanmayı engelle
+  
   const username = document.getElementById("register-username").value;
   const email = document.getElementById("register-email").value;
   const password = document.getElementById("register-password").value;
