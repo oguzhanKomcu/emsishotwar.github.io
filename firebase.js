@@ -57,7 +57,11 @@ window.showLogin = function() {
   document.getElementById("login-section").style.display = "block";
   document.getElementById("authModalLabel").textContent = "Giriş Yap";
 };
-
+// Kullanıcı adı benzersiz mi kontrol et
+window.isUsernameUnique = async function(username) {
+  const snapshot = await get(ref(database, "usernames/" + username));
+  return !snapshot.exists();
+};
 // Kullanıcı adı benzersizliğini kontrol et
 // Kayıt işlemi
 window.registerUser = async function() {
