@@ -59,16 +59,11 @@ window.showLogin = function() {
 };
 
 // Kullanıcı adı benzersizliğini kontrol et
-window.isUsernameUnique = async function(username) {
-  const snapshot = await get(ref(database, "usernames/" + username));
-  return !snapshot.exists();
-};
-
 // Kayıt işlemi
 window.registerUser = async function() {
-    const username = document.getElementById("register-username").value;
-    const email = document.getElementById("register-email").value;
-    const password = document.getElementById("register-password").value;
+  const username = document.getElementById("register-username").value;
+  const email = document.getElementById("register-email").value;
+  const password = document.getElementById("register-password").value;
 
   if (!username || !password) {
     alert("Lütfen kullanıcı adı ve şifre gir!");
@@ -89,11 +84,11 @@ window.registerUser = async function() {
   }
 
   try {
-
     // E-posta ile kullanıcı oluştur (Firebase Authentication otomatik olarak çakışmayı kontrol eder)
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
     // Kullanıcı adını ve e-posta’yı veritabanına kaydet
+    const usernameRef = ref(database, "usernames/" + username); // usernameRef'i burada tanımlıyoruz
     await set(usernameRef, {
       uid: userCredential.user.uid,
       email: email
