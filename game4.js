@@ -138,7 +138,7 @@ const enemyImages = [
     new Image(), new Image(), new Image(), new Image(), new Image(),
     new Image(), new Image(),  new Image(), new Image(), new Image(),
      new Image(),new Image(),new Image(),new Image(),new Image(),new Image()
-     ,new Image(),new Image(),new Image(),new Image(),new Image()
+     ,new Image(),new Image(),new Image(),new Image(),new Image(),new Image()
 ];
 enemyImages[0].src = 'img/oguz.jpg';
 enemyImages[1].src = 'img/alimert.jpg';
@@ -181,6 +181,7 @@ enemyImages[37].src = 'img/tugceİzmir.jpg';
 enemyImages[38].src = 'img/rabis.jpg';
 enemyImages[39].src = 'img/aysu.jpg';
 enemyImages[40].src = 'img/yaren.jpg';
+enemyImages[41].src = 'img/ahsen.jpg';
 let enemies = [];
 let score = 0;
 let spawnInterval = 2000;
