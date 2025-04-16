@@ -111,3 +111,9 @@ body::before {
     #score-list::-webkit-scrollbar-track {
         background: rgba(255, 255, 255, 0.1);
     }
+
+    #copyLinkButton {
+        width: 100%;
+        padding: 10px;
+        font-size: 1.1rem;
+    }
