@@ -31,8 +31,47 @@ loadingVideo.muted = true;
 loadingVideo.style.width = '300px';
 loadingVideo.style.height = '300px';
 loadingVideo.style.objectFit = 'cover';
-loadingScreen.appendChild(loadingVideo);
-document.body.appendChild(loadingScreen);
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Mobil veya tablet cihazları kontrol etme
+    function isMobileOrTablet() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isSmallScreen = window.innerWidth <= 1024; // Tablet ve mobil için sınır
+        return /mobile|tablet|ipad|iphone|android|touch/.test(userAgent) || isSmallScreen;
+    }
+
+    // Modalı gösterme fonksiyonu
+    function showWarningModal() {
+        const warningModal = new bootstrap.Modal(document.getElementById('warningModal'), {
+            backdrop: 'static', // Modalın dışına tıklayınca kapanmasını engeller
+            keyboard: false // Esc tuşu ile kapanmayı engeller
+        });
+        warningModal.show();
+    }
+
+    // Mobil veya tablet ise modalı göster ve işlemleri engelle
+    if (isMobileOrTablet()) {
+        showWarningModal();
+
+        // Oyun canvas'ını devre dışı bırak
+        const gameCanvas = document.getElementById('gameCanvas');
+        if (gameCanvas) {
+            gameCanvas.style.pointerEvents = 'none'; // Tıklama olaylarını engeller
+        }
+
+        // Klavye olaylarını engelle
+        window.addEventListener('keydown', function (e) {
+            e.preventDefault(); // Klavye olaylarını engeller
+        });
+
+    }
+    else
+    {
+        loadingScreen.appendChild(loadingVideo);
+        document.body.appendChild(loadingScreen);
+    }
+});
+
 
 
 document.addEventListener('DOMContentLoaded', function() {
