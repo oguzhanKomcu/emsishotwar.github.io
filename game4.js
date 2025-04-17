@@ -184,7 +184,7 @@ const enemyImages = [
      ,new Image(),new Image(),new Image(),new Image(),new Image(),new Image()
 ];
 enemyImages[0].src = 'img/oguz.jpg';
-enemyImages[1].src = 'img/aliMert.jpg';
+enemyImages[1].src = 'img/aliMert.png';
 enemyImages[2].src = 'img/hekaka.jpg';
 enemyImages[3].src = 'img/kaan.jpg';
 enemyImages[4].src = 'img/yazgan.jpg';
