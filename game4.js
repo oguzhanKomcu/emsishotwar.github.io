@@ -178,9 +178,13 @@ const enemyImages = [
     new Image(), new Image(),  new Image(), new Image(), new Image(),
      new Image(),new Image(),new Image(),new Image(),new Image(),new Image()
      ,new Image(),new Image(),new Image(),new Image(),new Image(),new Image()
+     ,new Image(),new Image(),new Image(),new Image(),new Image()
+     ,new Image(),new Image(),new Image(),new Image(),new Image()
+     ,new Image(),new Image(),new Image(),new Image(),new Image()
+     ,new Image(),new Image(),new Image(),new Image(),new Image()
 ];
 enemyImages[0].src = 'img/oguz.jpg';
-enemyImages[1].src = 'img/alimert.jpg';
+enemyImages[1].src = 'img/aliMert.jpg';
 enemyImages[2].src = 'img/hekaka.jpg';
 enemyImages[3].src = 'img/kaan.jpg';
 enemyImages[4].src = 'img/yazgan.jpg';
@@ -208,7 +212,7 @@ enemyImages[25].src = 'img/kivircik.jpg';
 enemyImages[26].src = 'img/bavyeraOmer.jpg';
 enemyImages[27].src = 'img/dogukan.jpg';
 enemyImages[28].src = 'img/mertImarov.jpg';
-enemyImages[29].src = 'img/edadd.png';
+enemyImages[29].src = 'img/edadd.jpg';
 enemyImages[30].src = 'img/kirpi.jpg';
 enemyImages[31].src = 'img/ccg.jpg';
 enemyImages[32].src = 'img/nazdar.jpg';
@@ -221,6 +225,29 @@ enemyImages[38].src = 'img/rabis.jpg';
 enemyImages[39].src = 'img/aysu.jpg';
 enemyImages[40].src = 'img/yaren.jpg';
 enemyImages[41].src = 'img/ahsen.jpg';
+
+
+enemyImages[42].src = 'img/alperSu.jpg';
+enemyImages[43].src = 'img/aseyo.jpg';
+enemyImages[44].src = 'img/bengisu.jpg';
+enemyImages[45].src = 'img/berfo.jpg';
+enemyImages[46].src = 'img/buseBayındırlı.jpg';
+enemyImages[47].src = 'img/buseG.jpg';
+enemyImages[48].src = 'img/crnglr.jpg';
+enemyImages[49].src = 'img/ezgi.jpg';
+enemyImages[50].src = 'img/kıvılcım.jpg';
+enemyImages[51].src = 'img/ososunaKızı.jpg';
+enemyImages[52].src = 'img/sana.jpg';
+enemyImages[53].src = 'img/rakun.jpg';
+
+enemyImages[54].src = 'img/burakAnkara.jpg';
+enemyImages[55].src = 'img/berkay.jpg';
+enemyImages[56].src = 'img/erenay.jpg';
+enemyImages[57].src = 'img/ozlem.jpg';
+enemyImages[58].src = 'img/meryem.jpg';
+enemyImages[59].src = 'img/ezgiligok.jpg';
+enemyImages[60].src = 'img/deniz.jpg';
+enemyImages[61].src = 'img/zey.jpg';
 let enemies = [];
 let score = 0;
 let spawnInterval = 2000;
@@ -257,7 +284,7 @@ function shootBullet() {
 }
 
 function createEnemy() {
-    const size = 65;
+    const size = 75;
     const x = Math.random() * (canvas.width - size);
     const existingImages = enemies.map(enemy => enemy.image.src);
     let availableImages = enemyImages.filter(img => !existingImages.includes(img.src));
@@ -406,8 +433,8 @@ function gameLoop(currentTime) {
                     scoreDisplay.textContent = `Skor: ${score} | Can: ${player.lives}`;
                     updateSpawnRate();
                     if (score % 50 === 0) {
-                        enemySpeed += 30; // Düşman hızı 30 piksel/saniye artar
-                        player.speed += 50; // Karakter hızı 50 piksel/saniye artar
+                        enemySpeed += 40; // Düşman hızı 30 piksel/saniye artar
+                        player.speed += 60; // Karakter hızı 50 piksel/saniye artar
                         bullets.forEach(b => b.speed += 50); // Shot hızı 50 piksel/saniye artar
                         console.log(`Hızlar güncellendi - Oyuncu: ${player.speed}, Mermi: ${bullets[0]?.speed || 600}, Düşman: ${enemySpeed}`);
                     }
