@@ -285,7 +285,7 @@ function shootBullet() {
 }
 
 function createEnemy() {
-    const size = 75;
+    const size = 70;
     const x = Math.random() * (canvas.width - size);
     const existingImages = enemies.map(enemy => enemy.image.src);
     let availableImages = enemyImages.filter(img => !existingImages.includes(img.src));
