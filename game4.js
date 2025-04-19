@@ -197,7 +197,7 @@ enemyImages[10].src = 'img/kerimcan.jpg';
 enemyImages[11].src = 'img/cagri.png';
 enemyImages[12].src = 'img/alpertunga.jpg';
 enemyImages[13].src = 'img/mami.jpg';
-enemyImages[14].src = 'img/sefa.png';
+enemyImages[14].src = 'img/takeda.jpg';
 enemyImages[15].src = 'img/ekrem.jpg';
 enemyImages[16].src = 'img/okan.jpg';
 enemyImages[17].src = 'img/sinan.jpg';
@@ -286,7 +286,7 @@ function shootBullet() {
 
 function createEnemy() {
     const size = 70;
-    const x = Math.random() * (canvas.width - size);
+    const x = Math.random() * (canvas.width - size);s
     const existingImages = enemies.map(enemy => enemy.image.src);
     let availableImages = enemyImages.filter(img => !existingImages.includes(img.src));
     if (availableImages.length === 0) availableImages = enemyImages;
