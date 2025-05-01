@@ -28,8 +28,8 @@ const loadingVideo = document.createElement('video');
 loadingVideo.src = 'img/yukleniyorMami.mp4';
 loadingVideo.autoplay = true;
 loadingVideo.muted = true;
-loadingVideo.style.width = '300px';
-loadingVideo.style.height = '300px';
+loadingVideo.style.width = '600px';
+loadingVideo.style.height = '515px';
 loadingVideo.style.objectFit = 'cover';
 
 document.addEventListener('DOMContentLoaded', function () {
