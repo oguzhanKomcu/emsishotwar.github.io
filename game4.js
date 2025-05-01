@@ -182,6 +182,7 @@ const enemyImages = [
      ,new Image(),new Image(),new Image(),new Image(),new Image()
      ,new Image(),new Image(),new Image(),new Image(),new Image()
      ,new Image(),new Image(),new Image(),new Image(),new Image(),new Image()
+     ,new Image(),new Image()
 ];
 enemyImages[0].src = 'img/oguz.jpg';
 enemyImages[1].src = 'img/aliMert.png';
@@ -249,6 +250,8 @@ enemyImages[59].src = 'img/ezgiligok.jpg';
 enemyImages[60].src = 'img/deniz.jpg';
 enemyImages[61].src = 'img/zey.jpg';
 enemyImages[62].src = 'img/damla.jpg';
+enemyImages[63].src = 'img/bizahmet.jpg';
+enemyImages[64].src = 'img/ozlem.jpg';
 let enemies = [];
 let score = 0;
 let spawnInterval = 2000;
@@ -286,7 +289,7 @@ function shootBullet() {
 
 function createEnemy() {
     const size = 70;
-    const x = Math.random() * (canvas.width - size);s
+    const x = Math.random() * (canvas.width - size);
     const existingImages = enemies.map(enemy => enemy.image.src);
     let availableImages = enemyImages.filter(img => !existingImages.includes(img.src));
     if (availableImages.length === 0) availableImages = enemyImages;
